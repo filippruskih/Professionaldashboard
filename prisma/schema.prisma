@@ -44,6 +44,10 @@ model Reel {
   postedAt         DateTime
   thumbnailUrl     String?
   mediaProductType String?
+  // Agent-assigned during sync (see lib/content/classify.ts). Null until
+  // classified; topicTags is a JSON-encoded string array.
+  format           String?
+  topicTags        String?
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
   insights         ReelInsightSnapshot[]

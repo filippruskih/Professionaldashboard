@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { classifyReel } from "@/lib/content/classify";
 import { refreshLongLivedToken } from "./auth";
 import { getProfile, getRecentReels, getReelInsights } from "./client";
 
@@ -66,6 +67,21 @@ export async function runInstagramSync(): Promise<SyncResult> {
         thumbnailUrl: reel.thumbnailUrl,
       },
     });
+
+    if (!savedReel.format && process.env.ANTHROPIC_API_KEY) {
+      try {
+        const classification = await classifyReel(savedReel.caption);
+        await db.reel.update({
+          where: { id: savedReel.id },
+          data: {
+            format: classification.format,
+            topicTags: JSON.stringify(classification.topics),
+          },
+        });
+      } catch (error) {
+        console.error(`Failed to classify reel ${savedReel.id}`, error);
+      }
+    }
 
     const insights = await getReelInsights(accessToken, reel.id);
 
