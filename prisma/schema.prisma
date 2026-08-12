@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// The connected Instagram professional account. Single row for this
+// single-user app.
+model Account {
+  id             String   @id @default(cuid())
+  igUserId       String   @unique
+  username       String
+  accountType    String?
+  accessToken    String
+  tokenExpiresAt DateTime
+  connectedAt    DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// Point-in-time snapshot of account-level stats, captured on every sync.
+// Historical rows (not just the latest) are what makes the followers
+// growth chart possible.
+model FollowerSnapshot {
+  id            String   @id @default(cuid())
+  capturedAt    DateTime @default(now())
+  followerCount Int
+  followsCount  Int
+  mediaCount    Int
+}
+
+model Reel {
+  id               String                @id @default(cuid())
+  igMediaId        String                @unique
+  permalink        String
+  caption          String?
+  postedAt         DateTime
+  thumbnailUrl     String?
+  mediaProductType String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  insights         ReelInsightSnapshot[]
+}
+
+// Point-in-time snapshot of a single reel's stats. Historical rows let
+// us chart a reel's performance over time and compare it against past
+// reels rather than only ever seeing "latest" numbers.
+model ReelInsightSnapshot {
+  id                String   @id @default(cuid())
+  reelId            String
+  reel              Reel     @relation(fields: [reelId], references: [id])
+  capturedAt        DateTime @default(now())
+  views             Int?
+  likes             Int?
+  comments          Int?
+  shares            Int?
+  saved             Int?
+  reach             Int?
+  totalInteractions Int?
+  avgWatchTimeMs    Int?
+  skipRate3s        Float?
+  engagementRate    Float?
+
+  @@index([reelId])
+}
