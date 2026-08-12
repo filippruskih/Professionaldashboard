@@ -48,9 +48,24 @@ model Reel {
   // classified; topicTags is a JSON-encoded string array.
   format           String?
   topicTags        String?
+  seriesId         String?
+  series           Series?               @relation(fields: [seriesId], references: [id])
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
   insights         ReelInsightSnapshot[]
+
+  @@index([seriesId])
+}
+
+// A user-defined group of reels tracked as a single narrative arc (e.g.
+// "Account Growth Journey"), shown from its start date.
+model Series {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  reels       Reel[]
 }
 
 // Point-in-time snapshot of a single reel's stats. Historical rows let
@@ -73,4 +88,94 @@ model ReelInsightSnapshot {
   engagementRate    Float?
 
   @@index([reelId])
+}
+
+// One row per agent in the registry (src/lib/agents/registry.ts). Seeded
+// automatically on first access rather than via a separate seed script.
+model AgentDefinition {
+  id          String     @id @default(cuid())
+  key         String     @unique
+  name        String
+  description String
+  schedule    String
+  enabled     Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  runs        AgentRun[]
+}
+
+model AgentRun {
+  id            String          @id @default(cuid())
+  agentId       String
+  agent         AgentDefinition @relation(fields: [agentId], references: [id])
+  status        String // "running" | "succeeded" | "failed" | "skipped"
+  startedAt     DateTime        @default(now())
+  finishedAt    DateTime?
+  outputSummary String?
+  logs          AgentLogEntry[]
+
+  @@index([agentId])
+}
+
+model AgentLogEntry {
+  id        String   @id @default(cuid())
+  runId     String
+  run       AgentRun @relation(fields: [runId], references: [id])
+  timestamp DateTime @default(now())
+  level     String // "info" | "warn" | "error"
+  message   String
+
+  @@index([runId])
+}
+
+// The Planning agent's daily "post this" output, surfaced on Overview.
+model Suggestion {
+  id               String   @id @default(cuid())
+  date             DateTime @default(now())
+  hook             String
+  script           String
+  sourceAgentRunId String?
+  status           String   @default("new") // "new" | "used" | "dismissed"
+  createdAt        DateTime @default(now())
+}
+
+// Versioned snapshot of "what consistently works" for this creator, built by
+// the Analytics agent from historical top performers. Kept as a history
+// (not a single row) so the Content DNA page can show how it's evolved.
+model ContentDnaProfile {
+  id                String   @id @default(cuid())
+  generatedAt       DateTime @default(now())
+  narrative         String
+  topFormatsJson    String // JSON: [{ format, avgViews, count }]
+  topTopicsJson     String // JSON: [{ topic, avgViews, count }]
+  sourceAgentRunId  String?
+}
+
+// A DM conversation, populated by the Instagram Messaging webhook receiver
+// (src/app/api/instagram/webhook/route.ts) — not reachable until that
+// webhook is registered with a publicly-accessible URL. The DM agent reads
+// unhandled threads, categorizes them, and drafts a reply for review;
+// nothing is ever sent automatically.
+model DmThread {
+  id                  String      @id @default(cuid())
+  igThreadId          String      @unique
+  participantUsername String?
+  category            String? // "question" | "collab" | "fan" | "spam" | "business" | "other"
+  draftReply          String?
+  draftStatus         String      @default("none") // "none" | "drafted" | "sent" | "dismissed"
+  lastMessageAt        DateTime
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  messages            DmMessage[]
+}
+
+model DmMessage {
+  id          String   @id @default(cuid())
+  threadId    String
+  thread      DmThread @relation(fields: [threadId], references: [id])
+  igMessageId String   @unique
+  fromUser    Boolean // true = sent by the DM participant, false = sent by the account owner
+  text        String?
+  sentAt      DateTime
+
+  @@index([threadId])
 }

@@ -8,6 +8,7 @@ import {
   ListTree,
   Dna,
   Bot,
+  MessageCircle,
   Settings,
   Sparkles,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const navItems = [
   { title: "Series", url: "/series", icon: ListTree },
   { title: "Content DNA", url: "/content-dna", icon: Dna },
   { title: "Agents", url: "/agents", icon: Bot },
+  { title: "DMs", url: "/dms", icon: MessageCircle },
 ];
 
 export function AppSidebar() {

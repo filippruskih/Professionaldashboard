@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricLineChart } from "@/components/metric-line-chart";
 import { FeedbackPanel } from "@/components/reels/feedback-panel";
+import { SeriesAssign } from "@/components/reels/series-assign";
 import { getReelDetail } from "@/lib/stats";
 import { getFeedbackLoop } from "@/lib/feedback";
+import { getAllSeries } from "@/lib/series";
 import { formatLabel } from "@/lib/content/classify";
 import { formatCompactNumber, formatDate, formatPercent, formatSecondsFromMs } from "@/lib/format";
 
@@ -30,6 +32,7 @@ export default async function ReelDetailPage({
     .reverse();
   const topics: string[] = reel.topicTags ? JSON.parse(reel.topicTags) : [];
   const feedback = await getFeedbackLoop(id);
+  const allSeries = await getAllSeries();
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -57,6 +60,14 @@ export default async function ReelDetailPage({
               View on Instagram <ExternalLink />
             </Link>
           </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Series:</span>
+            <SeriesAssign
+              reelId={reel.id}
+              currentSeriesId={reel.seriesId}
+              seriesOptions={allSeries.map((s) => ({ id: s.id, name: s.name }))}
+            />
+          </div>
         </div>
       </div>
 

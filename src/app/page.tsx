@@ -4,13 +4,16 @@ import { StatTile } from "@/components/stat-tile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FollowerGrowthChart } from "@/components/overview/follower-growth-chart";
 import { TopReelCard } from "@/components/overview/top-reel-card";
+import { SuggestionCard } from "@/components/overview/suggestion-card";
 import { getOverviewStats } from "@/lib/stats";
+import { getActiveSuggestion } from "@/lib/suggestions";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
   const stats = await getOverviewStats();
+  const suggestion = await getActiveSuggestion();
   const hasData = stats.followerCount != null || stats.reelCount > 0;
 
   return (
@@ -73,7 +76,19 @@ export default async function OverviewPage() {
               </CardContent>
             </Card>
 
-            {stats.topReel && <TopReelCard reel={stats.topReel} />}
+            <div className="flex flex-col gap-4">
+              {suggestion && (
+                <SuggestionCard
+                  suggestion={{
+                    id: suggestion.id,
+                    date: suggestion.date.toISOString(),
+                    hook: suggestion.hook,
+                    script: suggestion.script,
+                  }}
+                />
+              )}
+              {stats.topReel && <TopReelCard reel={stats.topReel} />}
+            </div>
           </div>
         </>
       )}

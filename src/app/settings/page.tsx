@@ -117,23 +117,33 @@ function SetupInstructions() {
           >
             developers.facebook.com/apps <ExternalLink className="size-3" />
           </a>{" "}
-          → Create App → choose &quot;Other&quot; → &quot;Business&quot;. Add the{" "}
-          <strong>Instagram</strong> product to the app, using the Instagram API with Instagram
-          Login (Business Login) setup flow.
+          → Create App. Meta&apos;s exact screens shift over time — if asked what you want your
+          app to do, pick <strong>APIs</strong> (not &quot;Sharing&quot;), then{" "}
+          <strong>Instagram Graph API</strong> (not &quot;Instagram Basic Display API&quot;, which
+          Meta retired). This lands you on{" "}
+          <strong>Instagram → API setup with Instagram Login</strong> in your app&apos;s sidebar —
+          steps 3–5 below all happen on that one page.
         </Step>
         <Step n={3} title="Add yourself as a tester">
-          In the app&apos;s Instagram product settings, add your own Instagram account as a
-          tester/admin so you can authorize it without App Review.
+          On the &quot;API setup with Instagram Login&quot; page, add your own Instagram account
+          (Add account / Instagram testers) and accept the invite in the Instagram app if
+          prompted — this lets you authorize the app without Meta App Review.
         </Step>
         <Step n={4} title="Set the redirect URI">
-          In the Instagram product&apos;s Business Login settings, add{" "}
+          Same page, under &quot;Set up Instagram business login&quot; → Business login settings,
+          add{" "}
           <code className="rounded bg-muted px-1 py-0.5">
             http://localhost:3000/api/instagram/callback
           </code>{" "}
-          as a valid OAuth redirect URI.
+          as a valid OAuth redirect URI. It will also ask for a deauthorize callback URL and a
+          data deletion URL — for local development, any reachable URL (e.g. your local site root)
+          works as a placeholder.
         </Step>
         <Step n={5} title="Copy your App ID and App Secret">
-          Found on the app&apos;s Basic Settings page.
+          Use the <strong>Instagram App ID</strong> and <strong>Instagram App secret</strong>{" "}
+          shown on that same &quot;API setup with Instagram Login&quot; page — not the generic
+          App ID/Secret on the app&apos;s Basic Settings page, which are for a different login
+          flow and won&apos;t work here.
         </Step>
         <Step n={6} title="Add them to .env.local">
           Copy <code className="rounded bg-muted px-1 py-0.5">.env.local.example</code> to{" "}
