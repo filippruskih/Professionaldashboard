@@ -179,3 +179,37 @@ model DmMessage {
 
   @@index([threadId])
 }
+
+// Feed content (photos, carousels) — tracked separately from Reel since
+// video-specific concepts (avg watch time, hook/script format
+// classification) don't apply. mediaType stands in for "format."
+model Post {
+  id        String                @id @default(cuid())
+  igMediaId String                @unique
+  permalink String
+  caption   String?
+  postedAt  DateTime
+  thumbnailUrl String?
+  mediaType String // "IMAGE" | "CAROUSEL_ALBUM" | "VIDEO"
+  topicTags String? // JSON-encoded string array, same convention as Reel
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  insights  PostInsightSnapshot[]
+}
+
+model PostInsightSnapshot {
+  id                String   @id @default(cuid())
+  postId            String
+  post              Post     @relation(fields: [postId], references: [id])
+  capturedAt        DateTime @default(now())
+  views             Int?
+  likes             Int?
+  comments          Int?
+  shares            Int?
+  saved             Int?
+  reach             Int?
+  totalInteractions Int?
+  engagementRate    Float?
+
+  @@index([postId])
+}

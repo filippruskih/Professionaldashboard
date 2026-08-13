@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { IconBadge } from "@/components/icon-badge";
 import { formatDate } from "@/lib/format";
 
 interface Suggestion {
@@ -36,7 +37,7 @@ export function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Sparkles className="size-4 text-muted-foreground" />
+          <IconBadge icon={Sparkles} color="magenta" size="sm" />
           Today&apos;s suggestion
         </CardTitle>
         <p className="text-xs text-muted-foreground">{formatDate(suggestion.date)}</p>

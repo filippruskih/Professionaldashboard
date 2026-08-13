@@ -18,7 +18,9 @@ export function SyncButton() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Sync failed");
       setStatus("idle");
-      setMessage(`Synced @${data.username}: ${data.reelsSynced} reels, ${data.followerCount} followers.`);
+      setMessage(
+        `Synced @${data.username}: ${data.reelsSynced} reels, ${data.postsSynced} posts, ${data.followerCount} followers.`
+      );
       router.refresh();
     } catch (error) {
       setStatus("error");

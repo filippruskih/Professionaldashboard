@@ -24,9 +24,20 @@ export function MetricLineChart({
     [dataKey]: { label, color: "var(--chart-1)" },
   } satisfies ChartConfig;
 
+  // Multi-year history means "Jul 12" alone is ambiguous — same month/day
+  // recurring across different years looks like it jumps backward on the
+  // axis. Only add the year suffix when the data actually spans more than
+  // one, so a single-year chart stays uncluttered.
+  const years = new Set(data.map((d) => new Date(d.date).getFullYear()));
+  const spansMultipleYears = years.size > 1;
+
   const points = data.map((d) => ({
     [dataKey]: d.value,
-    label: new Date(d.date).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    label: new Date(d.date).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: spansMultipleYears ? "2-digit" : undefined,
+    }),
   }));
 
   return (

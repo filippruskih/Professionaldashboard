@@ -66,3 +66,45 @@ export async function classifyReel(caption: string | null): Promise<ReelClassifi
   const parsed = JSON.parse(textBlock.text) as ReelClassification;
   return parsed;
 }
+
+const TOPICS_SCHEMA = {
+  type: "object",
+  properties: {
+    topics: {
+      type: "array",
+      items: { type: "string" },
+      description: "1-4 short topic tags, e.g. 'morning routine', 'mindset'",
+    },
+  },
+  required: ["topics"],
+  additionalProperties: false,
+};
+
+// Lighter version of classifyReel for Posts (photos/carousels) — topics
+// only, no format enum, since mediaType already captures "format" for
+// non-video content.
+export async function classifyTopics(caption: string | null): Promise<string[]> {
+  const response = await anthropic.messages.create({
+    model: CLASSIFY_MODEL,
+    max_tokens: 200,
+    output_config: {
+      format: { type: "json_schema", schema: TOPICS_SCHEMA },
+    },
+    messages: [
+      {
+        role: "user",
+        content: `Extract 1-4 short topic tags for this Instagram post caption.\n\nCaption: ${
+          caption ?? "(no caption)"
+        }`,
+      },
+    ],
+  });
+
+  const textBlock = response.content.find((block) => block.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("Classification response had no text content");
+  }
+
+  const parsed = JSON.parse(textBlock.text) as { topics: string[] };
+  return parsed.topics;
+}

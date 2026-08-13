@@ -45,19 +45,25 @@ export interface InstagramMedia {
   thumbnailUrl: string | null;
 }
 
-// The /media edge has no server-side filter for Reels, so we page
-// through recent media and filter on media_product_type client-side.
-export async function getRecentReels(
+// The /media edge has no server-side filter by content type, so we page
+// through recent media once and let the caller split by
+// media_product_type (REELS vs FEED) — one paginated fetch serves both
+// content types instead of two separate walks.
+export async function getRecentMedia(
   accessToken: string,
   igUserId: string,
   limit = 50
 ): Promise<InstagramMedia[]> {
-  const reels: InstagramMedia[] = [];
+  const media: InstagramMedia[] = [];
   let after: string | undefined;
 
-  while (reels.length < limit) {
+  while (media.length < limit) {
     const json = await igFetch(`/${igUserId}/media`, accessToken, {
-      fields: "id,media_type,media_product_type,permalink,caption,timestamp,thumbnail_url",
+      // thumbnail_url is only populated for VIDEO/REELS media — photos and
+      // carousels return it empty, so media_url is the fallback image
+      // source for those (confirmed against real account data).
+      fields:
+        "id,media_type,media_product_type,permalink,caption,timestamp,thumbnail_url,media_url",
       limit: "25",
       ...(after ? { after } : {}),
     });
@@ -71,6 +77,7 @@ export async function getRecentReels(
         caption: string | null;
         timestamp: string;
         thumbnail_url: string | null;
+        media_url: string | null;
       }) => ({
         id: item.id,
         mediaType: item.media_type,
@@ -78,17 +85,17 @@ export async function getRecentReels(
         permalink: item.permalink,
         caption: item.caption ?? null,
         timestamp: item.timestamp,
-        thumbnailUrl: item.thumbnail_url ?? null,
+        thumbnailUrl: item.thumbnail_url ?? item.media_url ?? null,
       })
     );
 
-    reels.push(...items.filter((item) => item.mediaProductType === "REELS"));
+    media.push(...items);
 
     after = json.paging?.cursors?.after;
     if (!after || items.length === 0) break;
   }
 
-  return reels.slice(0, limit);
+  return media.slice(0, limit);
 }
 
 const REEL_INSIGHT_METRICS = [
@@ -136,5 +143,51 @@ export async function getReelInsights(
     reach: values.reach ?? null,
     totalInteractions: values.total_interactions ?? null,
     avgWatchTimeMs: values.ig_reels_avg_watch_time ?? null,
+  };
+}
+
+// Verified live against a real Feed post: reach/likes/comments/saved/
+// shares/total_interactions/views are all supported for FEED media.
+// `impressions` is confirmed dead (Meta rejects it) and the Reels-only
+// watch-time/skip-rate metrics don't apply here.
+const POST_INSIGHT_METRICS = [
+  "views",
+  "likes",
+  "comments",
+  "shares",
+  "saved",
+  "reach",
+  "total_interactions",
+];
+
+export interface PostInsights {
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  saved: number | null;
+  reach: number | null;
+  totalInteractions: number | null;
+}
+
+export async function getPostInsights(accessToken: string, mediaId: string): Promise<PostInsights> {
+  const json = await igFetch(`/${mediaId}/insights`, accessToken, {
+    metric: POST_INSIGHT_METRICS.join(","),
+  });
+
+  const values: Record<string, number> = {};
+  for (const entry of json.data ?? []) {
+    const value = entry.values?.[0]?.value ?? entry.total_value?.value;
+    if (typeof value === "number") values[entry.name] = value;
+  }
+
+  return {
+    views: values.views ?? null,
+    likes: values.likes ?? null,
+    comments: values.comments ?? null,
+    shares: values.shares ?? null,
+    saved: values.saved ?? null,
+    reach: values.reach ?? null,
+    totalInteractions: values.total_interactions ?? null,
   };
 }

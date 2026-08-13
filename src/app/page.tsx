@@ -37,22 +37,26 @@ export default async function OverviewPage() {
             <StatTile
               label="Followers"
               icon={Users}
+              color="blue"
               value={stats.followerCount != null ? formatCompactNumber(stats.followerCount) : "—"}
               delta={stats.followerDelta}
             />
             <StatTile
               label="Avg plays / reel"
               icon={Play}
+              color="orange"
               value={stats.avgPlays != null ? formatCompactNumber(stats.avgPlays) : "—"}
             />
             <StatTile
               label="Total plays"
               icon={TrendingUp}
+              color="aqua"
               value={stats.totalPlays != null ? formatCompactNumber(stats.totalPlays) : "—"}
             />
             <StatTile
               label="Avg engagement"
               icon={Zap}
+              color="yellow"
               value={
                 stats.avgEngagementRate != null ? formatPercent(stats.avgEngagementRate) : "—"
               }

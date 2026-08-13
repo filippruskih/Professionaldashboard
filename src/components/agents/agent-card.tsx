@@ -1,11 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, ChevronDown, ChevronUp, Loader2, Play, XCircle } from "lucide-react";
+import {
+  BarChart3,
+  CalendarClock,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  Loader2,
+  MessageCircle,
+  Play,
+  TrendingUp,
+  XCircle,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { IconBadge, type IconBadgeColor } from "@/components/icon-badge";
 import { cn } from "@/lib/utils";
+
+// Same fixed categorical order as the rest of the app — each agent keeps
+// its color identity everywhere it's shown.
+const AGENT_ICONS: Record<string, { icon: typeof BarChart3; color: IconBadgeColor }> = {
+  analytics: { icon: BarChart3, color: "blue" },
+  trend: { icon: TrendingUp, color: "orange" },
+  idea: { icon: Lightbulb, color: "aqua" },
+  planning: { icon: CalendarClock, color: "yellow" },
+  dm: { icon: MessageCircle, color: "magenta" },
+};
 
 interface LogEntry {
   id: string;
@@ -107,13 +130,18 @@ export function AgentCard({ initial }: { initial: AgentData }) {
     }
   }
 
+  const { icon, color } = AGENT_ICONS[agent.key] ?? { icon: BarChart3, color: "blue" };
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle className="text-base">{agent.name}</CardTitle>
-            <p className="text-sm text-muted-foreground">{agent.description}</p>
+          <div className="flex items-start gap-3">
+            <IconBadge icon={icon} color={color} />
+            <div>
+              <CardTitle className="text-base">{agent.name}</CardTitle>
+              <p className="text-sm text-muted-foreground">{agent.description}</p>
+            </div>
           </div>
           <StatusBadge status={latestRun?.status ?? null} />
         </div>

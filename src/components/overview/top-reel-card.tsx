@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { IconBadge } from "@/components/icon-badge";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
 import type { ReelWithLatestInsight } from "@/lib/stats";
 
@@ -12,7 +13,7 @@ export function TopReelCard({ reel }: { reel: ReelWithLatestInsight }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Trophy className="size-4 text-muted-foreground" />
+          <IconBadge icon={Trophy} color="yellow" size="sm" />
           Top reel
         </CardTitle>
       </CardHeader>

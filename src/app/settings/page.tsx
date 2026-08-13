@@ -129,15 +129,16 @@ function SetupInstructions() {
           (Add account / Instagram testers) and accept the invite in the Instagram app if
           prompted — this lets you authorize the app without Meta App Review.
         </Step>
-        <Step n={4} title="Set the redirect URI">
+        <Step n={4} title="Set the redirect URI — must be HTTPS">
           Same page, under &quot;Set up Instagram business login&quot; → Business login settings,
           add{" "}
           <code className="rounded bg-muted px-1 py-0.5">
-            http://localhost:3000/api/instagram/callback
+            https://localhost:3000/api/instagram/callback
           </code>{" "}
-          as a valid OAuth redirect URI. It will also ask for a deauthorize callback URL and a
-          data deletion URL — for local development, any reachable URL (e.g. your local site root)
-          works as a placeholder.
+          as a valid OAuth redirect URI. Instagram rejects plain <code>http://</code> here, even
+          for localhost — it must be <code>https://</code>. It will also ask for a deauthorize
+          callback URL and a data deletion URL; any reachable URL (e.g. your local site root)
+          works as a placeholder for local development.
         </Step>
         <Step n={5} title="Copy your App ID and App Secret">
           Use the <strong>Instagram App ID</strong> and <strong>Instagram App secret</strong>{" "}
@@ -147,11 +148,21 @@ function SetupInstructions() {
         </Step>
         <Step n={6} title="Add them to .env.local">
           Copy <code className="rounded bg-muted px-1 py-0.5">.env.local.example</code> to{" "}
-          <code className="rounded bg-muted px-1 py-0.5">.env.local</code> and fill in{" "}
-          <code className="rounded bg-muted px-1 py-0.5">IG_APP_ID</code>,{" "}
+          <code className="rounded bg-muted px-1 py-0.5">.env.local</code> (never edit the{" "}
+          <code>.example</code> file itself with real values — it&apos;s committed to git) and
+          fill in <code className="rounded bg-muted px-1 py-0.5">IG_APP_ID</code>,{" "}
           <code className="rounded bg-muted px-1 py-0.5">IG_APP_SECRET</code>, and{" "}
-          <code className="rounded bg-muted px-1 py-0.5">IG_REDIRECT_URI</code>, then restart the
-          dev server.
+          <code className="rounded bg-muted px-1 py-0.5">IG_REDIRECT_URI</code> (the{" "}
+          <code>https://</code> URL from step 4).
+        </Step>
+        <Step n={7} title="Run the dev server with HTTPS">
+          Stop the dev server if it&apos;s running, then start it with{" "}
+          <code className="rounded bg-muted px-1 py-0.5">npm run dev:https</code> instead of{" "}
+          <code>npm run dev</code> — plain HTTP won&apos;t satisfy the redirect URI you just
+          registered. The first time, your browser will warn about the self-signed certificate at{" "}
+          <code>https://localhost:3000</code>; click through (&quot;Advanced&quot; → &quot;Proceed
+          to localhost&quot;) — that&apos;s expected for local dev. Regular{" "}
+          <code>npm run dev</code> is fine again afterwards for everyday use, once connected.
         </Step>
       </ol>
     </div>

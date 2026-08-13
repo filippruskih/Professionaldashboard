@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Film,
+  Image as ImageIcon,
   ListTree,
   Dna,
   Bot,
   MessageCircle,
   Settings,
   Sparkles,
+  TrendingUp,
 } from "lucide-react";
 
 import {
@@ -30,6 +32,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const navItems = [
   { title: "Overview", url: "/", icon: LayoutDashboard },
   { title: "Reels", url: "/reels", icon: Film },
+  { title: "Posts", url: "/posts", icon: ImageIcon },
+  { title: "Insights", url: "/insights", icon: TrendingUp },
   { title: "Series", url: "/series", icon: ListTree },
   { title: "Content DNA", url: "/content-dna", icon: Dna },
   { title: "Agents", url: "/agents", icon: Bot },
@@ -46,7 +50,12 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <div
+                  className="flex aspect-square size-8 items-center justify-center rounded-lg text-white"
+                  style={{
+                    background: "linear-gradient(135deg, var(--chart-1), var(--chart-5))",
+                  }}
+                >
                   <Sparkles className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">

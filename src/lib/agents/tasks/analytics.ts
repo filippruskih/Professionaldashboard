@@ -1,5 +1,6 @@
 import { anthropic, requireAnthropicKey, CLASSIFY_MODEL } from "@/lib/anthropic";
 import { getOverviewStats, getReelsWithLatestInsights } from "@/lib/stats";
+import { getContentMixComparison } from "@/lib/insights";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
@@ -48,11 +49,12 @@ function findAnomalies(reels: Awaited<ReturnType<typeof getReelsWithLatestInsigh
 }
 
 export async function runAnalyticsAgent(ctx: AgentContext): Promise<string> {
-  await ctx.log("Pulling latest reel and follower stats…");
+  await ctx.log("Pulling latest reel, post, and follower stats…");
   const stats = await getOverviewStats();
+  const mix = await getContentMixComparison();
 
-  if (stats.reelCount === 0) {
-    await ctx.log("No reels synced yet — connect Instagram and run a sync first.", "warn");
+  if (stats.reelCount === 0 && mix.posts.count === 0) {
+    await ctx.log("No reels or posts synced yet — connect Instagram and run a sync first.", "warn");
     throw new AgentSkip("Skipped: no data to analyze yet");
   }
 
@@ -60,11 +62,13 @@ export async function runAnalyticsAgent(ctx: AgentContext): Promise<string> {
   const anomalies = findAnomalies(reels);
 
   await ctx.log(
-    `Baseline: ${stats.reelCount} reels, avg ${
+    `Baseline: ${stats.reelCount} reels (avg ${
       stats.avgPlays != null ? formatCompactNumber(stats.avgPlays) : "—"
-    } plays, avg engagement ${
+    } plays, ${
       stats.avgEngagementRate != null ? formatPercent(stats.avgEngagementRate) : "—"
-    }.`
+    } engagement), ${mix.posts.count} posts (avg ${
+      mix.posts.avgEngagementRate != null ? formatPercent(mix.posts.avgEngagementRate) : "—"
+    } engagement).`
   );
 
   if (anomalies.length > 0) {
@@ -84,14 +88,21 @@ export async function runAnalyticsAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Asking Claude to summarize what's notable…");
 
   const facts = {
-    reelCount: stats.reelCount,
-    followerCount: stats.followerCount,
-    followerDelta: stats.followerDelta,
-    avgPlays: stats.avgPlays,
-    avgEngagementRate: stats.avgEngagementRate,
-    topReelCaption: stats.topReel?.caption ?? null,
-    topReelViews: stats.topReel?.latestInsight?.views ?? null,
-    anomalies,
+    reels: {
+      count: stats.reelCount,
+      followerCount: stats.followerCount,
+      followerDelta: stats.followerDelta,
+      avgPlays: stats.avgPlays,
+      avgEngagementRate: stats.avgEngagementRate,
+      topReelCaption: stats.topReel?.caption ?? null,
+      topReelViews: stats.topReel?.latestInsight?.views ?? null,
+      anomalies,
+    },
+    posts: {
+      count: mix.posts.count,
+      avgReach: mix.posts.avgReach,
+      avgEngagementRate: mix.posts.avgEngagementRate,
+    },
   };
 
   const response = await anthropic.messages.create({
@@ -100,7 +111,7 @@ export async function runAnalyticsAgent(ctx: AgentContext): Promise<string> {
     messages: [
       {
         role: "user",
-        content: `You are the analytics agent for a personal Instagram Reels dashboard. Given these already-computed facts (JSON), write a concise 3-5 sentence summary a creator can read in a glance. Reference the concrete numbers given — do not invent numbers not present in the data. Call out anomalies plainly if there are any.\n\nFacts:\n${JSON.stringify(facts, null, 2)}`,
+        content: `You are the analytics agent for a personal Instagram dashboard that tracks both Reels and regular feed Posts. Given these already-computed facts (JSON), write a concise 3-5 sentence summary a creator can read in a glance, covering both content types where there's data for them. Reference the concrete numbers given — do not invent numbers not present in the data. Call out anomalies plainly if there are any, and note which content type (Reels or Posts) is performing better if both have enough data to compare.\n\nFacts:\n${JSON.stringify(facts, null, 2)}`,
       },
     ],
   });
