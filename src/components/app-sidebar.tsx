@@ -2,18 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Film,
-  Image as ImageIcon,
-  ListTree,
-  Dna,
-  Bot,
-  MessageCircle,
-  Settings,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import {
   Sidebar,
@@ -27,20 +16,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
+import { ICON_COLORS } from "@/components/icon-badge";
+import { navItems } from "@/lib/nav-items";
 
-const navItems = [
-  { title: "Overview", url: "/", icon: LayoutDashboard },
-  { title: "Reels", url: "/reels", icon: Film },
-  { title: "Posts", url: "/posts", icon: ImageIcon },
-  { title: "Insights", url: "/insights", icon: TrendingUp },
-  { title: "Series", url: "/series", icon: ListTree },
-  { title: "Content DNA", url: "/content-dna", icon: Dna },
-  { title: "Agents", url: "/agents", icon: Bot },
-  { title: "DMs", url: "/dms", icon: MessageCircle },
-];
+const mainNavItems = navItems.filter((item) => item.url !== "/settings");
+const settingsItem = navItems.find((item) => item.url === "/settings")!;
 
-export function AppSidebar() {
+export function AppSidebar({
+  username,
+  connected,
+}: {
+  username: string | null;
+  connected: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -51,9 +40,9 @@ export function AppSidebar() {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
                 <div
-                  className="flex aspect-square size-8 items-center justify-center rounded-lg text-white"
+                  className="flex aspect-square size-8 items-center justify-center rounded-lg text-white shadow-sm"
                   style={{
-                    background: "linear-gradient(135deg, var(--chart-1), var(--chart-5))",
+                    background: "linear-gradient(135deg, var(--primary), var(--chart-5))",
                   }}
                 >
                   <Sparkles className="size-4" />
@@ -76,16 +65,31 @@ export function AppSidebar() {
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {mainNavItems.map((item) => {
                 const isActive =
                   item.url === "/"
                     ? pathname === "/"
                     : pathname.startsWith(item.url);
                 return (
                   <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className="data-active:bg-transparent"
+                      style={
+                        isActive
+                          ? {
+                              backgroundColor: `color-mix(in oklab, ${ICON_COLORS[item.color]} 14%, transparent)`,
+                              color: ICON_COLORS[item.color],
+                            }
+                          : undefined
+                      }
+                    >
                       <Link href={item.url}>
-                        <item.icon />
+                        <item.icon
+                          style={isActive ? { color: ICON_COLORS[item.color] } : undefined}
+                        />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -99,13 +103,31 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <ThemeToggle />
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname.startsWith("/settings")} tooltip="Settings">
-              <Link href="/settings">
-                <Settings />
-                <span>Settings</span>
+            <SidebarMenuButton size="lg" asChild tooltip="Settings" isActive={pathname.startsWith("/settings")}>
+              <Link href={settingsItem.url} className="gap-3">
+                <Avatar size="sm">
+                  <AvatarFallback
+                    className="text-[0.7rem] font-semibold text-white"
+                    style={{
+                      background: "linear-gradient(135deg, var(--primary), var(--chart-5))",
+                    }}
+                  >
+                    {username ? username.slice(0, 2).toUpperCase() : "?"}
+                  </AvatarFallback>
+                  <AvatarBadge
+                    style={{
+                      backgroundColor: connected ? "var(--delta-good)" : "var(--muted-foreground)",
+                    }}
+                  />
+                </Avatar>
+                <div className="grid flex-1 text-left text-xs leading-tight">
+                  <span className="truncate font-medium">
+                    {username ? `@${username}` : "Not connected"}
+                  </span>
+                  <span className="truncate text-muted-foreground">
+                    {connected ? "Connected · Settings" : "Connect Instagram"}
+                  </span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

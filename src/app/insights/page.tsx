@@ -2,6 +2,7 @@ import { CalendarClock, Film, Image as ImageIcon, Scale, TrendingUp } from "luci
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/icon-badge";
+import { PageHeader } from "@/components/page-header";
 import { MetricLineChart } from "@/components/metric-line-chart";
 import {
   getBestDayToPost,
@@ -25,13 +26,12 @@ export default async function InsightsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Insights</h1>
-        <p className="text-sm text-muted-foreground">
-          Deterministic growth signals derived from your history — posting cadence, timing, and
-          trend, not AI narrative.
-        </p>
-      </div>
+      <PageHeader
+        icon={TrendingUp}
+        color="aqua"
+        title="Insights"
+        description="Deterministic growth signals derived from your history — posting cadence, timing, and trend, not AI narrative."
+      />
 
       {!hasAnyData ? (
         <Card>

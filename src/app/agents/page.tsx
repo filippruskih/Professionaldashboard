@@ -1,6 +1,8 @@
+import { Bot } from "lucide-react";
 import { db } from "@/lib/db";
 import { ensureAgentDefinitions } from "@/lib/agents/runner";
 import { AgentCard } from "@/components/agents/agent-card";
+import { PageHeader } from "@/components/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -20,12 +22,12 @@ export default async function AgentsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Agents</h1>
-        <p className="text-sm text-muted-foreground">
-          Analytics, Trend, Idea, Planning, and DM agents — live status and activity log.
-        </p>
-      </div>
+      <PageHeader
+        icon={Bot}
+        color="orange"
+        title="Agents"
+        description="Analytics, Trend, Idea, Planning, and DM agents — live status and activity log."
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         {definitions.map((definition) => (

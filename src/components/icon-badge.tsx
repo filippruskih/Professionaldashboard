@@ -29,16 +29,17 @@ export function IconBadge({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full",
+        "flex shrink-0 items-center justify-center rounded-xl border",
         size === "sm" ? "size-8" : "size-10",
         className
       )}
       style={{
-        backgroundColor: `color-mix(in oklab, ${ICON_COLORS[color]} 16%, transparent)`,
+        background: `linear-gradient(155deg, color-mix(in oklab, ${ICON_COLORS[color]} 24%, transparent), color-mix(in oklab, ${ICON_COLORS[color]} 10%, transparent))`,
+        borderColor: `color-mix(in oklab, ${ICON_COLORS[color]} 20%, transparent)`,
         color: ICON_COLORS[color],
       }}
     >
-      <Icon className={size === "sm" ? "size-4" : "size-5"} />
+      <Icon className={size === "sm" ? "size-4" : "size-5"} strokeWidth={2.25} />
     </div>
   );
 }

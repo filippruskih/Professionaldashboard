@@ -17,7 +17,7 @@ export async function getPostsWithLatestInsights(): Promise<PostWithLatestInsigh
   }));
 }
 
-const POSTS_PAGE_SIZE = 10;
+const POSTS_PAGE_SIZE = 9; // 3x3 grid per page
 
 export async function getPostsPage(page: number): Promise<{
   posts: PostWithLatestInsight[];

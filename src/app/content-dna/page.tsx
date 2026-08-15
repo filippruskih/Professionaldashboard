@@ -2,6 +2,7 @@ import { Dna } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 import { getLatestContentDna } from "@/lib/content-dna";
 import { formatCompactNumber, formatDate } from "@/lib/format";
 import { formatLabel } from "@/lib/content/classify";
@@ -13,16 +14,17 @@ export default async function ContentDnaPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Content DNA</h1>
-        <p className="text-sm text-muted-foreground">
-          The recurring hooks, topics, tone, and formats that make your best reels work.
-        </p>
-      </div>
+      <PageHeader
+        icon={Dna}
+        color="aqua"
+        title="Content DNA"
+        description="The recurring hooks, topics, tone, and formats that make your best reels work."
+      />
 
       {!profile ? (
         <EmptyState
           icon={Dna}
+          color="aqua"
           title="Not enough history yet"
           description="Your Content DNA profile is built by the Analytics agent from your top-performing reels over time. It'll appear here once you have at least 5 reels synced and have run the Analytics agent."
         />

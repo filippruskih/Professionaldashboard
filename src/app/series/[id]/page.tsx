@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricLineChart } from "@/components/metric-line-chart";
 import { ReelsTable } from "@/components/reels/reels-table";
 import { EmptyState } from "@/components/empty-state";
+import { IconBadge } from "@/components/icon-badge";
 import { ListTree } from "lucide-react";
 import { getSeriesDetail } from "@/lib/series";
 import { formatDate } from "@/lib/format";
@@ -24,20 +25,24 @@ export default async function SeriesDetailPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{series.name}</h1>
-        {series.description && (
-          <p className="text-sm text-muted-foreground">{series.description}</p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          {series.reels.length} reel{series.reels.length === 1 ? "" : "s"} · since{" "}
-          {formatDate(series.startDate)}
-        </p>
+      <div className="flex items-start gap-3">
+        <IconBadge icon={ListTree} color="yellow" className="mt-0.5" />
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{series.name}</h1>
+          {series.description && (
+            <p className="text-sm text-muted-foreground">{series.description}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {series.reels.length} reel{series.reels.length === 1 ? "" : "s"} · since{" "}
+            {formatDate(series.startDate)}
+          </p>
+        </div>
       </div>
 
       {series.reels.length === 0 ? (
         <EmptyState
           icon={ListTree}
+          color="yellow"
           title="No reels tagged yet"
           description="Assign reels to this series from each reel's detail page."
         />

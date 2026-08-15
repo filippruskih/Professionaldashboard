@@ -1,6 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { DmThreadCard } from "@/components/dms/dm-thread-card";
 import { getDmThreads } from "@/lib/dm";
 
@@ -11,12 +12,12 @@ export default async function DmsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">DMs</h1>
-        <p className="text-sm text-muted-foreground">
-          Drafted replies for your review — nothing is ever sent automatically.
-        </p>
-      </div>
+      <PageHeader
+        icon={MessageCircle}
+        color="magenta"
+        title="DMs"
+        description="Drafted replies for your review — nothing is ever sent automatically."
+      />
 
       <Alert>
         <MessageCircle />
@@ -39,6 +40,7 @@ export default async function DmsPage() {
       {threads.length === 0 ? (
         <EmptyState
           icon={MessageCircle}
+          color="magenta"
           title="No DM threads yet"
           description="Once the webhook above is receiving messages and the DM agent has run, drafted replies will appear here."
         />

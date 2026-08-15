@@ -1,10 +1,11 @@
-import { LayoutDashboard, Play, TrendingUp, Users, Zap } from "lucide-react";
+import { LayoutDashboard, Play, Sparkles, TrendingUp, Users, Zap } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { StatTile } from "@/components/stat-tile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FollowerGrowthChart } from "@/components/overview/follower-growth-chart";
 import { TopReelCard } from "@/components/overview/top-reel-card";
 import { SuggestionCard } from "@/components/overview/suggestion-card";
+import { db } from "@/lib/db";
 import { getOverviewStats } from "@/lib/stats";
 import { getActiveSuggestion } from "@/lib/suggestions";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
@@ -12,15 +13,35 @@ import { formatCompactNumber, formatPercent } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
-  const stats = await getOverviewStats();
-  const suggestion = await getActiveSuggestion();
+  const [stats, suggestion, account] = await Promise.all([
+    getOverviewStats(),
+    getActiveSuggestion(),
+    db.account.findFirst(),
+  ]);
   const hasData = stats.followerCount != null || stats.reelCount > 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-        <p className="text-sm text-muted-foreground">
+      <div
+        className="relative overflow-hidden rounded-2xl px-6 py-7 text-white shadow-sm sm:px-8"
+        style={{ background: "linear-gradient(120deg, var(--primary), var(--chart-5))" }}
+      >
+        <Sparkles className="pointer-events-none absolute -top-6 right-6 size-32 text-white/10" />
+        <div
+          className="pointer-events-none absolute -bottom-16 -left-10 size-48 rounded-full blur-3xl"
+          style={{ background: "color-mix(in oklab, var(--chart-1) 60%, transparent)" }}
+        />
+        <p className="relative text-sm font-medium text-white/75">
+          {new Date().toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+        <h1 className="relative mt-1 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+          {account ? `Welcome back, @${account.username}` : "Welcome to your Creator Dashboard"}
+        </h1>
+        <p className="relative mt-1.5 max-w-xl text-sm text-white/80 text-pretty">
           Followers, plays, top reel, and engagement at a glance.
         </p>
       </div>

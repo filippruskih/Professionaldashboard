@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, Settings as SettingsIcon, XCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { instagramConfig } from "@/lib/instagram/config";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/page-header";
 import { SyncButton } from "@/components/settings/sync-button";
 
 export default async function SettingsPage({
@@ -20,12 +21,12 @@ export default async function SettingsPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Connect your Instagram account and manage sync.
-        </p>
-      </div>
+      <PageHeader
+        icon={SettingsIcon}
+        color="blue"
+        title="Settings"
+        description="Connect your Instagram account and manage sync."
+      />
 
       {connected && (
         <Alert>

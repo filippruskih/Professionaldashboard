@@ -2,14 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { AppHeader } from "@/components/app-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/components/theme-provider";
+import { db } from "@/lib/db";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +23,9 @@ export const metadata: Metadata = {
   description: "Personal Instagram Reels analytics & content agents",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const account = await db.account.findFirst();
+
   return (
     <html
       lang="en"
@@ -37,16 +36,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <SidebarProvider>
-              <AppSidebar />
+              <AppSidebar username={account?.username ?? null} connected={!!account} />
               <SidebarInset>
-                <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-                  <SidebarTrigger className="-ml-1" />
-                  <Separator orientation="vertical" className="mr-2 h-4" />
-                  <span className="text-sm text-muted-foreground">
-                    Personal Instagram Analytics
-                  </span>
-                </header>
-                <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+                <AppHeader />
+                <main className="flex flex-1 flex-col gap-4 bg-background p-4 md:p-6">
                   {children}
                 </main>
               </SidebarInset>
