@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
+import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -21,6 +22,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Creator Dashboard",
   description: "Personal Instagram Reels analytics & content agents",
+  // app/manifest.ts is an automatic file convention — Next injects the
+  // <link rel="manifest"> itself, no need to reference it here.
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Dashboard",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#574ede" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f10" },
+  ],
 };
 
 // The layout itself queries the DB (for the sidebar/header account chip),
@@ -38,6 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <RegisterServiceWorker />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <SidebarProvider>
