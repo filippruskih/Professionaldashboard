@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description: "Personal Instagram Reels analytics & content agents",
 };
 
+// The layout itself queries the DB (for the sidebar/header account chip),
+// so every route — including /_not-found — needs this to skip static
+// prerendering rather than requiring a live DB connection at build time.
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const account = await db.account.findFirst();
 
