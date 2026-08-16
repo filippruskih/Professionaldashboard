@@ -133,6 +133,17 @@
   }
 }
 
+/* Nearly all body text in the app uses Tailwind's text-sm (14px), which
+   reads small on a phone compared to native-app conventions (~16-17px).
+   Tailwind's text sizes are all rem-based, so bumping the root font size
+   on small viewports scales every size proportionally instead of having
+   to hunt down every text-sm/text-xs across the app. */
+@media (max-width: 767px) {
+  html {
+    font-size: 18px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
