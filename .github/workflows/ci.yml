@@ -21,6 +21,9 @@ jobs:
 
       - run: npm run lint
 
-      - run: npx tsc --noEmit
-
+      # next build already runs a full TypeScript check internally, using
+      # the ambient types (e.g. LayoutProps) it generates as part of the
+      # same build — a standalone `tsc --noEmit` here would run *before*
+      # those types exist on a clean checkout and fail on a false
+      # positive, so this is the only type-check step.
       - run: npm run build
