@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export const SESSION_COOKIE = "dashboard_session";
 
@@ -82,4 +82,16 @@ export function recordFailure(ip: string) {
 
 export function clearAttempts(ip: string) {
   attempts.delete(ip);
+}
+
+// Redirects with a *relative* Location header instead of
+// NextResponse.redirect(new URL(path, request.url)). Behind Railway's edge,
+// request.url's origin doesn't reliably reflect the public domain (it was
+// coming back as an internal/localhost-ish address), sending browsers to a
+// host that doesn't exist for them. A relative Location header sidesteps
+// that entirely — browsers always resolve it against whatever origin
+// they're actually on, so it's correct regardless of how the origin behind
+// the proxy gets reported.
+export function redirectTo(path: string, status: 303 | 307 = 303): NextResponse {
+  return new NextResponse(null, { status, headers: { Location: path } });
 }

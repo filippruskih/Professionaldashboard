@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
+import { SESSION_COOKIE, isValidSession, redirectTo } from "@/lib/auth";
 
 // Gates the whole app behind a single shared password once hosted publicly.
 // Only active when SITE_PASSWORD is set — local dev stays open by default.
@@ -41,9 +41,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const loginUrl = new URL("/login", request.url);
-  loginUrl.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
-  return NextResponse.redirect(loginUrl);
+  const next = encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search);
+  return redirectTo(`/login?next=${next}`);
 }
 
 export const config = {
