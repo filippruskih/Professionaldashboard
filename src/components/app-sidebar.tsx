@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { LogOut, Sparkles } from "lucide-react";
 
 import {
   Sidebar,
@@ -26,9 +26,11 @@ const settingsItem = navItems.find((item) => item.url === "/settings")!;
 export function AppSidebar({
   username,
   connected,
+  authEnabled,
 }: {
   username: string | null;
   connected: boolean;
+  authEnabled: boolean;
 }) {
   const pathname = usePathname();
 
@@ -131,6 +133,16 @@ export function AppSidebar({
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {authEnabled && (
+            <SidebarMenuItem>
+              <form action="/api/auth/logout" method="POST">
+                <SidebarMenuButton type="submit" tooltip="Log out">
+                  <LogOut />
+                  <span>Log out</span>
+                </SidebarMenuButton>
+              </form>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

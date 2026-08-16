@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { db } from "@/lib/db";
+import { isAuthEnabled } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,7 +61,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <SidebarProvider>
-              <AppSidebar username={account?.username ?? null} connected={!!account} />
+              <AppSidebar
+                username={account?.username ?? null}
+                connected={!!account}
+                authEnabled={isAuthEnabled()}
+              />
               <SidebarInset>
                 <AppHeader />
                 <main className="flex flex-1 flex-col gap-4 bg-background p-4 md:p-6">
