@@ -15,6 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { ICON_COLORS } from "@/components/icon-badge";
@@ -33,6 +34,10 @@ export function AppSidebar({
   authEnabled: boolean;
 }) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const closeOnMobile = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -40,7 +45,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
+              <Link href="/" onClick={closeOnMobile}>
                 <div
                   className="flex aspect-square size-8 items-center justify-center rounded-lg text-white shadow-sm"
                   style={{
@@ -88,7 +93,7 @@ export function AppSidebar({
                           : undefined
                       }
                     >
-                      <Link href={item.url}>
+                      <Link href={item.url} onClick={closeOnMobile}>
                         <item.icon
                           style={isActive ? { color: ICON_COLORS[item.color] } : undefined}
                         />
@@ -106,7 +111,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip="Settings" isActive={pathname.startsWith("/settings")}>
-              <Link href={settingsItem.url} className="gap-3">
+              <Link href={settingsItem.url} className="gap-3" onClick={closeOnMobile}>
                 <Avatar size="sm">
                   <AvatarFallback
                     className="text-[0.7rem] font-semibold text-white"
