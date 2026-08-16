@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, isValidSession, redirectTo } from "@/lib/auth";
+import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
 
 // Gates the whole app behind a single shared password once hosted publicly.
 // Only active when SITE_PASSWORD is set — local dev stays open by default.
@@ -41,8 +41,17 @@ export function proxy(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const next = encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search);
-  return redirectTo(`/login?next=${next}`);
+  // NextResponse.redirect() needs an absolute URL, and — unlike the Route
+  // Handlers under /api/auth/*, where request.url's origin was unreliable
+  // behind Railway's edge — request.url here is correct; this is Next's
+  // Proxy runtime, which does its own internal parsing of the Location
+  // header on whatever a proxy function returns, and throws ("Invalid
+  // URL") if it isn't a fully-qualified URL. A relative Location (the fix
+  // used in the Route Handlers) crashes here instead of just being
+  // resolved client-side.
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
+  return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
