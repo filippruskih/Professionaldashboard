@@ -4,11 +4,15 @@ import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
+import { ScrollSpyProvider } from "@/components/scroll-spy-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { db } from "@/lib/db";
 import { isAuthEnabled } from "@/lib/auth";
+import { navItems } from "@/lib/nav-items";
+
+const sectionIds = navItems.map((item) => item.sectionId);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,19 +64,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <RegisterServiceWorker />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <SidebarProvider>
-              <AppSidebar
-                username={account?.username ?? null}
-                connected={!!account}
-                authEnabled={isAuthEnabled()}
-              />
-              <SidebarInset>
-                <AppHeader />
-                <main className="flex flex-1 flex-col gap-4 bg-background p-4 md:p-6">
-                  {children}
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
+            <ScrollSpyProvider sectionIds={sectionIds}>
+              <SidebarProvider>
+                <AppSidebar
+                  username={account?.username ?? null}
+                  connected={!!account}
+                  authEnabled={isAuthEnabled()}
+                />
+                <SidebarInset>
+                  <AppHeader />
+                  <main className="flex flex-1 flex-col gap-4 bg-background p-4 md:p-6">
+                    {children}
+                  </main>
+                </SidebarInset>
+              </SidebarProvider>
+            </ScrollSpyProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>

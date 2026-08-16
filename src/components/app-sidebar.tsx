@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { ICON_COLORS } from "@/components/icon-badge";
-import { navItems } from "@/lib/nav-items";
+import { useActiveSection } from "@/components/scroll-spy-provider";
+import { navItems, sectionHref, type NavItem } from "@/lib/nav-items";
 
 const mainNavItems = navItems.filter((item) => item.url !== "/settings");
 const settingsItem = navItems.find((item) => item.url === "/settings")!;
@@ -34,10 +35,19 @@ export function AppSidebar({
   authEnabled: boolean;
 }) {
   const pathname = usePathname();
+  const activeSectionId = useActiveSection();
   const { isMobile, setOpenMobile } = useSidebar();
   const closeOnMobile = () => {
     if (isMobile) setOpenMobile(false);
   };
+
+  // On the home page, whichever section is scrolled into view wins;
+  // everywhere else (the standalone Reels/Posts pages, a detail page),
+  // fall back to matching the pathname against the section's own route.
+  function isItemActive(item: NavItem): boolean {
+    if (pathname === "/") return item.sectionId === (activeSectionId ?? "overview");
+    return item.url !== "/" && pathname.startsWith(item.url);
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -73,12 +83,9 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive =
-                  item.url === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(item.url);
+                const isActive = isItemActive(item);
                 return (
-                  <SidebarMenuItem key={item.url}>
+                  <SidebarMenuItem key={item.sectionId}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
@@ -93,7 +100,7 @@ export function AppSidebar({
                           : undefined
                       }
                     >
-                      <Link href={item.url} onClick={closeOnMobile}>
+                      <Link href={sectionHref(item)} onClick={closeOnMobile}>
                         <item.icon
                           style={isActive ? { color: ICON_COLORS[item.color] } : undefined}
                         />
@@ -110,8 +117,13 @@ export function AppSidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Settings" isActive={pathname.startsWith("/settings")}>
-              <Link href={settingsItem.url} className="gap-3" onClick={closeOnMobile}>
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              tooltip="Settings"
+              isActive={isItemActive(settingsItem)}
+            >
+              <Link href={sectionHref(settingsItem)} className="gap-3" onClick={closeOnMobile}>
                 <Avatar size="sm">
                   <AvatarFallback
                     className="text-[0.7rem] font-semibold text-white"

@@ -5,11 +5,13 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { IconBadge } from "@/components/icon-badge";
-import { navItemForPath } from "@/lib/nav-items";
+import { useActiveSection } from "@/components/scroll-spy-provider";
+import { getActiveNavItem } from "@/lib/nav-items";
 
 export function AppHeader() {
   const pathname = usePathname();
-  const active = navItemForPath(pathname);
+  const activeSectionId = useActiveSection();
+  const active = getActiveNavItem(pathname, activeSectionId);
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur-sm supports-backdrop-filter:bg-background/70 md:px-6">
