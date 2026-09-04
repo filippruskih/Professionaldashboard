@@ -14,11 +14,16 @@ export function MetricLineChart({
   dataKey,
   label,
   height = 220,
+  percent = false,
 }: {
   data: { date: string; value: number }[];
   dataKey: string;
   label: string;
   height?: number;
+  // Set for series stored as a raw fraction (e.g. engagement rate, 0.124
+  // meaning 12.4%) — scales values into percentage points and formats the
+  // axis with a "%" suffix, instead of showing the bare 0–0.2-ish fraction.
+  percent?: boolean;
 }) {
   const chartConfig = {
     [dataKey]: { label, color: "var(--chart-1)" },
@@ -32,7 +37,7 @@ export function MetricLineChart({
   const spansMultipleYears = years.size > 1;
 
   const points = data.map((d) => ({
-    [dataKey]: d.value,
+    [dataKey]: percent ? d.value * 100 : d.value,
     label: new Date(d.date).toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
@@ -50,7 +55,7 @@ export function MetricLineChart({
           axisLine={false}
           tickMargin={8}
           width={44}
-          tickFormatter={(value) => formatCompactNumber(value)}
+          tickFormatter={(value) => (percent ? `${formatCompactNumber(value)}%` : formatCompactNumber(value))}
         />
         <ChartTooltip cursor={{ stroke: "var(--border)" }} content={<ChartTooltipContent />} />
         <Line

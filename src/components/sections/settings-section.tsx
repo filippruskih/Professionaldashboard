@@ -74,7 +74,16 @@ export async function SettingsSection({
                 })}
                 . It refreshes automatically on sync.
               </p>
-              <SyncButton />
+              <div className="flex flex-wrap items-center gap-2">
+                <SyncButton />
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/api/instagram/authorize">Reconnect Instagram</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Reconnect if you&apos;ve just enabled a new permission (like DMs below) — this
+                re-authorizes without disconnecting anything.
+              </p>
             </div>
           ) : configured ? (
             <div className="flex flex-col gap-3">

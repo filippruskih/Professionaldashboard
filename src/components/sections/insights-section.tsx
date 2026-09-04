@@ -106,7 +106,13 @@ export async function InsightsSection() {
             </CardHeader>
             <CardContent>
               {trend.length > 1 ? (
-                <MetricLineChart data={trend} dataKey="engagement" label="Engagement rate" height={220} />
+                <MetricLineChart
+                  data={trend}
+                  dataKey="engagement"
+                  label="Engagement rate"
+                  height={220}
+                  percent
+                />
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Appears once you have a few posted items with engagement data.

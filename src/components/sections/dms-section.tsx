@@ -8,6 +8,19 @@ import { getDmThreads } from "@/lib/dm";
 export async function DmsSection() {
   const threads = await getDmThreads();
 
+  // IG_REDIRECT_URI is "https://<host>/api/instagram/callback" — reusing
+  // its origin means this always shows the *actual* webhook URL for
+  // wherever the app is currently running, local or hosted, instead of a
+  // placeholder the user has to hand-edit.
+  let webhookUrl = "<your-domain>/api/instagram/webhook";
+  try {
+    if (process.env.IG_REDIRECT_URI) {
+      webhookUrl = `${new URL(process.env.IG_REDIRECT_URI).origin}/api/instagram/webhook`;
+    }
+  } catch {
+    // malformed IG_REDIRECT_URI — fall back to the placeholder above
+  }
+
   return (
     <SectionShell
       id="dms"
@@ -20,17 +33,15 @@ export async function DmsSection() {
         <MessageCircle />
         <AlertTitle>Requires a one-time webhook setup</AlertTitle>
         <AlertDescription>
-          Instagram pushes DMs to this app via a webhook rather than a pollable endpoint, so it
-          needs a publicly reachable URL — not available on plain localhost. To receive real DMs:
-          run a tunnel (e.g. <code>ngrok http 3000</code>), add{" "}
-          <code>&lt;your-tunnel-url&gt;/api/instagram/webhook</code> as a webhook callback URL in
-          your Meta app&apos;s Instagram product settings, set a verify token there and put the
-          same value in <code>.env.local</code> as <code>IG_WEBHOOK_VERIFY_TOKEN</code>. Your
-          stored connection also needs the <code>instagram_business_manage_messages</code>{" "}
-          permission, which the initial Settings connection didn&apos;t request — you&apos;ll
-          need to reconnect once that scope is added to the app&apos;s login flow. Until all of
-          that&apos;s done this page will stay empty, and the DM agent (disabled by default on
-          the Agents page) has nothing to draft against.
+          Instagram pushes DMs to this app via a webhook, registered once in your Meta app&apos;s
+          dashboard. In Meta&apos;s Instagram product settings → Webhooks: add{" "}
+          <code>{webhookUrl}</code> as the callback URL, set a verify token of your choosing, and
+          put that same value in your environment as <code>IG_WEBHOOK_VERIFY_TOKEN</code> — then
+          subscribe to the <code>messages</code> field. Your connection also needs the{" "}
+          <code>instagram_business_manage_messages</code> permission — use the &quot;Reconnect
+          Instagram&quot; button in Settings below to re-authorize with it if you haven&apos;t
+          already. Until both are done this page stays empty, and the DM agent (disabled by
+          default on the Agents section) has nothing to draft against.
         </AlertDescription>
       </Alert>
 

@@ -28,6 +28,7 @@ export const instagramConfig = {
 export const IG_SCOPES = [
   "instagram_business_basic",
   "instagram_business_manage_insights",
+  "instagram_business_manage_messages",
 ] as const;
 
 export const IG_API_VERSION = "v25.0";
