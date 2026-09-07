@@ -1,3 +1,4 @@
+import { runSyncAgent } from "./tasks/sync";
 import { runAnalyticsAgent } from "./tasks/analytics";
 import { runTrendAgent } from "./tasks/trend";
 import { runIdeaAgent } from "./tasks/idea";
@@ -19,6 +20,15 @@ export interface AgentDefinitionConfig {
 }
 
 export const AGENT_REGISTRY: Record<string, AgentDefinitionConfig> = {
+  sync: {
+    key: "sync",
+    name: "Instagram sync",
+    description:
+      "Pulls your latest reels, posts, and follower count from Instagram automatically, every day.",
+    schedule: "50 5 * * *",
+    enabledByDefault: true,
+    run: runSyncAgent,
+  },
   analytics: {
     key: "analytics",
     name: "Analytics",

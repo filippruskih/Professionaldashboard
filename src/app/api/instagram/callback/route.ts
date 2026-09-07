@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const storedState = request.cookies.get("ig_oauth_state")?.value;
 
   if (!code || !state || !storedState || state !== storedState) {
-    const response = redirectTo("/?error=invalid_oauth_state#settings");
+    const response = redirectTo("/profile?error=invalid_oauth_state");
     response.cookies.delete("ig_oauth_state");
     return response;
   }
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     params.set("error", "connection_failed");
   }
 
-  const response = redirectTo(`/?${params.toString()}#settings`);
+  const response = redirectTo(`/profile?${params.toString()}`);
   response.cookies.delete("ig_oauth_state");
   return response;
 }

@@ -1,8 +1,9 @@
 import { Film } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
-import { ReelsTable } from "@/components/reels/reels-table";
+import { ReelsGrid } from "@/components/reels/reels-grid";
 import { PaginationControls } from "@/components/reels/pagination-controls";
+import { ContentTabs } from "@/components/content-tabs";
 import { getReelsPage } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,8 @@ export default async function ReelsPage({
         description="Every reel, with captions, views, engagement, and a link back to Instagram."
       />
 
+      <ContentTabs active="reels" />
+
       {reels.length === 0 ? (
         <EmptyState
           icon={Film}
@@ -35,7 +38,7 @@ export default async function ReelsPage({
         />
       ) : (
         <>
-          <ReelsTable reels={reels} />
+          <ReelsGrid reels={reels} />
           <PaginationControls page={page} totalPages={totalPages} basePath="/reels" />
         </>
       )}

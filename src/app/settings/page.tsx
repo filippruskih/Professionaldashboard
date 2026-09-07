@@ -1,9 +1,14 @@
 import { redirect } from "next/navigation";
 
-// Settings is now a section on the single scrolling home page rather than
-// its own route — this only exists to catch old bookmarks/links. The
-// Instagram OAuth callback redirects straight to /#settings itself, so
-// this path only matters for stale links.
-export default function SettingsRedirect() {
-  redirect("/#settings");
+// Renamed to /profile, matching Instagram's own convention of keeping
+// account/settings under the profile tab rather than a separate one. This
+// only exists to catch old bookmarks/links.
+export default async function SettingsRedirect({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) {
+  const params = new URLSearchParams(await searchParams);
+  const query = params.toString();
+  redirect(query ? `/profile?${query}` : "/profile");
 }

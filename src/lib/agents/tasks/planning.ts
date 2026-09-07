@@ -6,16 +6,28 @@ import { AgentSkip } from "@/lib/agents/errors";
 const PLAN_SCHEMA = {
   type: "object",
   properties: {
-    hook: {
-      type: "string",
-      description: "A punchy opening line for the reel, spoken in the first 1-2 seconds",
-    },
-    script: {
-      type: "string",
-      description: "A concise beat-by-beat script or outline for the full reel",
+    plans: {
+      type: "array",
+      minItems: 3,
+      maxItems: 3,
+      items: {
+        type: "object",
+        properties: {
+          hook: {
+            type: "string",
+            description: "A punchy opening line for the reel, spoken in the first 1-2 seconds",
+          },
+          script: {
+            type: "string",
+            description: "A concise beat-by-beat script or outline for the full reel",
+          },
+        },
+        required: ["hook", "script"],
+        additionalProperties: false,
+      },
     },
   },
-  required: ["hook", "script"],
+  required: ["plans"],
   additionalProperties: false,
 };
 
@@ -32,17 +44,17 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   }
 
   requireAnthropicKey();
-  await ctx.log("Picking today's idea and writing the hook + script…");
+  await ctx.log("Turning today's ideas into 3 ready-to-film hook + script options…");
 
   const response = await anthropic.messages.create({
     model: AGENT_MODEL,
-    max_tokens: 800,
+    max_tokens: 1600,
     thinking: { type: "disabled" },
     output_config: { format: { type: "json_schema", schema: PLAN_SCHEMA } },
     messages: [
       {
         role: "user",
-        content: `Here are candidate video ideas for a creator's next Instagram Reel:\n\n${ideaRun.outputSummary}\n\nPick the single strongest idea and turn it into a concrete, ready-to-film hook and script for today.`,
+        content: `Here are candidate video ideas for a creator's next Instagram Reel:\n\n${ideaRun.outputSummary}\n\nPick the 3 strongest, most distinct ideas from these candidates (or close variations of them) and turn each into its own concrete, ready-to-film hook and script for today. Give the creator genuine variety to choose from — not three versions of the same idea.`,
       },
     ],
   });
@@ -51,18 +63,24 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("Planning response had no text content");
   }
-  const plan = JSON.parse(textBlock.text) as { hook: string; script: string };
+  const { plans } = JSON.parse(textBlock.text) as {
+    plans: { hook: string; script: string }[];
+  };
 
-  await db.suggestion.create({
-    data: {
+  if (plans.length === 0) {
+    throw new Error("Planning response had no plans");
+  }
+
+  await db.suggestion.createMany({
+    data: plans.map((plan) => ({
       hook: plan.hook,
       script: plan.script,
       sourceAgentRunId: ideaRun.id,
       status: "new",
-    },
+    })),
   });
 
-  await ctx.log(`Today's suggestion: "${plan.hook}"`);
+  await ctx.log(`${plans.length} options ready, starting with: "${plans[0].hook}"`);
 
-  return `Today's hook: "${plan.hook}"`;
+  return `${plans.length} hook/script options ready — starting with: "${plans[0].hook}"`;
 }

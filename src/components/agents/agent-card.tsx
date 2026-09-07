@@ -11,6 +11,7 @@ import {
   Loader2,
   MessageCircle,
   Play,
+  RefreshCw,
   TrendingUp,
   XCircle,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 // Same fixed categorical order as the rest of the app — each agent keeps
 // its color identity everywhere it's shown.
 const AGENT_ICONS: Record<string, { icon: typeof BarChart3; color: IconBadgeColor }> = {
+  sync: { icon: RefreshCw, color: "blue" },
   analytics: { icon: BarChart3, color: "blue" },
   trend: { icon: TrendingUp, color: "orange" },
   idea: { icon: Lightbulb, color: "aqua" },

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricLineChart } from "@/components/metric-line-chart";
 import { FeedbackPanel } from "@/components/reels/feedback-panel";
 import { SeriesAssign } from "@/components/reels/series-assign";
+import { BackLink } from "@/components/back-link";
 import { getReelDetail } from "@/lib/stats";
 import { getFeedbackLoop } from "@/lib/feedback";
 import { getAllSeries } from "@/lib/series";
@@ -36,6 +37,7 @@ export default async function ReelDetailPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
+      <BackLink href="/reels" label="Reels" />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         {reel.thumbnailUrl && (
           <div className="relative h-48 w-32 shrink-0 overflow-hidden rounded-md bg-muted">

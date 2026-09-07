@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { PostsGrid } from "@/components/posts/posts-grid";
 import { PaginationControls } from "@/components/reels/pagination-controls";
+import { ContentTabs } from "@/components/content-tabs";
 import { getPostsPage } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,8 @@ export default async function PostsPage({
         title="Posts"
         description="Your photo and carousel posts — separate from Reels."
       />
+
+      <ContentTabs active="posts" />
 
       {posts.length === 0 ? (
         <EmptyState

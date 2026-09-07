@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricLineChart } from "@/components/metric-line-chart";
+import { BackLink } from "@/components/back-link";
 import { getPostDetail, mediaTypeLabel } from "@/lib/posts";
 import { formatCompactNumber, formatDate, formatPercent } from "@/lib/format";
 
@@ -29,6 +30,7 @@ export default async function PostDetailPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
+      <BackLink href="/posts" label="Posts" />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         {post.thumbnailUrl && (
           <div className="relative h-48 w-48 shrink-0 overflow-hidden rounded-md bg-muted">

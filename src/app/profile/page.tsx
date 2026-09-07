@@ -1,33 +1,34 @@
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, Settings as SettingsIcon, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, LogOut, User, XCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { instagramConfig } from "@/lib/instagram/config";
+import { isAuthEnabled } from "@/lib/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { SectionShell } from "@/components/section-shell";
+import { PageHeader } from "@/components/page-header";
 import { SyncButton } from "@/components/settings/sync-button";
 
-export async function SettingsSection({
-  connected,
-  error,
+export default async function ProfilePage({
+  searchParams,
 }: {
-  connected?: string;
-  error?: string;
+  searchParams: Promise<{ connected?: string; error?: string }>;
 }) {
+  const { connected, error } = await searchParams;
   const account = await db.account.findFirst();
   const configured = instagramConfig.isConfigured();
 
   return (
-    <SectionShell
-      id="settings"
-      icon={SettingsIcon}
-      color="blue"
-      title="Settings"
-      description="Connect your Instagram account and manage sync."
-    >
+    <div className="flex flex-1 flex-col gap-4">
+      <PageHeader
+        icon={User}
+        color="blue"
+        title="Profile"
+        description="Connect your Instagram account and manage sync."
+      />
+
       {connected && (
         <Alert>
           <CheckCircle2 />
@@ -81,7 +82,7 @@ export async function SettingsSection({
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Reconnect if you&apos;ve just enabled a new permission (like DMs below) — this
+                Reconnect if you&apos;ve just enabled a new permission (like DMs) — this
                 re-authorizes without disconnecting anything.
               </p>
             </div>
@@ -99,7 +100,23 @@ export async function SettingsSection({
           )}
         </CardContent>
       </Card>
-    </SectionShell>
+
+      {isAuthEnabled() && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Session</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action="/api/auth/logout" method="POST">
+              <Button type="submit" variant="outline" size="sm">
+                <LogOut />
+                Log out
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
 

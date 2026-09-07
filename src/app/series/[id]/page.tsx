@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricLineChart } from "@/components/metric-line-chart";
-import { ReelsTable } from "@/components/reels/reels-table";
+import { ReelsGrid } from "@/components/reels/reels-grid";
 import { EmptyState } from "@/components/empty-state";
 import { IconBadge } from "@/components/icon-badge";
+import { BackLink } from "@/components/back-link";
 import { ListTree } from "lucide-react";
 import { getSeriesDetail } from "@/lib/series";
 import { formatDate } from "@/lib/format";
@@ -25,6 +26,7 @@ export default async function SeriesDetailPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
+      <BackLink href="/series" label="Series" />
       <div className="flex items-start gap-3">
         <IconBadge icon={ListTree} color="yellow" className="mt-0.5" />
         <div>
@@ -59,7 +61,7 @@ export default async function SeriesDetailPage({
             </Card>
           )}
 
-          <ReelsTable reels={series.reels} />
+          <ReelsGrid reels={series.reels} />
         </>
       )}
     </div>
