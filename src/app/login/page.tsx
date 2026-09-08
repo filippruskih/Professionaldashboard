@@ -1,8 +1,8 @@
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AppLogoMark } from "@/components/app-logo-mark";
 
 export const metadata = { title: "Log in — Creator Dashboard" };
 
@@ -22,7 +22,7 @@ export default async function LoginPage({
             className="flex size-12 items-center justify-center rounded-xl text-white shadow-sm"
             style={{ background: "linear-gradient(135deg, var(--primary), var(--chart-5))" }}
           >
-            <Sparkles className="size-6" />
+            <AppLogoMark className="size-6" />
           </div>
           <div>
             <CardTitle>Creator Dashboard</CardTitle>

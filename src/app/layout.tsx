@@ -52,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <TooltipProvider>
             <div className="flex min-h-svh flex-col bg-background">
               <TopHeader />
-              <main className="flex flex-1 flex-col gap-4 p-4 pb-24 md:p-6 md:pb-24">
+              <main className="flex flex-1 flex-col gap-4 p-4 pb-32 md:p-6 md:pb-32">
                 {children}
               </main>
               <BottomNav />

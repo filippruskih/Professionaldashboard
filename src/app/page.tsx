@@ -24,12 +24,12 @@ export default async function OverviewPage() {
     <div className="flex flex-1 flex-col gap-4">
       <div
         className="relative overflow-hidden rounded-2xl px-6 py-7 text-white shadow-sm sm:px-8"
-        style={{ background: "linear-gradient(120deg, var(--primary), var(--chart-5))" }}
+        style={{ background: "linear-gradient(120deg, oklch(0.24 0.015 279), oklch(0.145 0.012 279))" }}
       >
         <Sparkles className="pointer-events-none absolute -top-6 right-6 size-32 text-white/10" />
         <div
           className="pointer-events-none absolute -bottom-16 -left-10 size-48 rounded-full blur-3xl"
-          style={{ background: "color-mix(in oklab, var(--chart-1) 60%, transparent)" }}
+          style={{ background: "color-mix(in oklab, var(--primary) 35%, transparent)" }}
         />
         <p className="relative text-sm font-medium text-white/75">
           {new Date().toLocaleDateString(undefined, {

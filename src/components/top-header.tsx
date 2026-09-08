@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { AppLogoMark } from "@/components/app-logo-mark";
 import { headerNavItem, getActiveNavItem } from "@/lib/nav-items";
 
 export function TopHeader() {
@@ -18,7 +18,7 @@ export function TopHeader() {
           className="flex aspect-square size-7 shrink-0 items-center justify-center rounded-lg text-white"
           style={{ background: "linear-gradient(135deg, var(--primary), var(--chart-5))" }}
         >
-          <Sparkles className="size-4" />
+          <AppLogoMark className="size-4" />
         </div>
         <span className="font-semibold">{active.title}</span>
       </Link>
