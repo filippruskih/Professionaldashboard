@@ -23,6 +23,12 @@ import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
 // - /privacy and /terms: must be publicly readable — Meta's App Review
 //   requires the Privacy Policy URL to load with no login, and future
 //   subscribers need to read them before signing up.
+// - manifest.webmanifest, the icons, apple-touch-icon.png, and sw.js: the
+//   browser/OS fetches these unauthenticated as part of installing the PWA
+//   (checking installability, downloading the home-screen icon, checking
+//   for a new service worker) — gating them meant those requests were
+//   silently redirected to /login instead of returning the actual asset,
+//   which can break "Add to Home Screen" and stale-icon-cache issues.
 
 export function proxy(request: NextRequest) {
   const sitePassword = process.env.SITE_PASSWORD;
@@ -56,6 +62,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/instagram/webhook|api/health|api/auth/login|login|privacy|terms|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/instagram/webhook|api/health|api/auth/login|login|privacy|terms|manifest\\.webmanifest|icons/|apple-touch-icon\\.png|sw\\.js|_next/static|_next/image|favicon.ico).*)",
   ],
 };
