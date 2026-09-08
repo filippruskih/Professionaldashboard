@@ -22,9 +22,9 @@ export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
 
   const activeIndex = Math.min(index, suggestions.length - 1);
   const suggestion = suggestions[activeIndex];
-  if (!suggestion) return null;
 
   async function setStatus(status: "used" | "dismissed") {
+    if (!suggestion) return;
     setPending(true);
     try {
       await fetch(`/api/suggestions/${suggestion.id}`, {
@@ -36,6 +36,26 @@ export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
     } finally {
       setPending(false);
     }
+  }
+
+  if (!suggestion) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <IconBadge icon={Sparkles} color="magenta" size="sm" />
+            Today&apos;s suggestion
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No suggestion available right now — you&apos;ve used or dismissed today&apos;s. New
+            ones land after tomorrow&apos;s scheduled Planning run, or trigger it now from the
+            Agents tab (Idea, then Planning).
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

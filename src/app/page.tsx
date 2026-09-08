@@ -102,16 +102,14 @@ export default async function OverviewPage() {
             </Card>
 
             <div className="flex flex-col gap-4">
-              {suggestions.length > 0 && (
-                <SuggestionCard
-                  suggestions={suggestions.map((s) => ({
-                    id: s.id,
-                    date: s.date.toISOString(),
-                    hook: s.hook,
-                    script: s.script,
-                  }))}
-                />
-              )}
+              <SuggestionCard
+                suggestions={suggestions.map((s) => ({
+                  id: s.id,
+                  date: s.date.toISOString(),
+                  hook: s.hook,
+                  script: s.script,
+                }))}
+              />
               {stats.topReel && <TopReelCard reel={stats.topReel} />}
             </div>
           </div>

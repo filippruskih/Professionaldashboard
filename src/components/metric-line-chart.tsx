@@ -45,6 +45,23 @@ export function MetricLineChart({
     }),
   }));
 
+  // Always anchoring the axis to 0 squashes a chart like follower growth
+  // into a flat line near the top when the real range of movement is small
+  // relative to the total count — pad around the data's own range instead
+  // so the actual trend is visible. Padding scales with both the range
+  // (so a volatile series gets breathing room) and the value itself (so a
+  // flat-ish series, e.g. followers barely moving day to day, still gets a
+  // sensible floor rather than clamping to a near-zero-height line).
+  const values = points.map((p) => p[dataKey] as number).filter((v) => Number.isFinite(v));
+  const dataMin = values.length ? Math.min(...values) : 0;
+  const dataMax = values.length ? Math.max(...values) : 0;
+  const range = dataMax - dataMin;
+  const padding = Math.max(range * 0.2, Math.abs(dataMin) * 0.1, 1);
+  const yDomain: [number, number] = [
+    Math.max(0, Math.floor(dataMin - padding)),
+    Math.ceil(dataMax + padding * 0.5),
+  ];
+
   return (
     <ChartContainer config={chartConfig} className="w-full" style={{ height }}>
       <LineChart data={points} margin={{ left: 4, right: 12, top: 8, bottom: 0 }}>
@@ -55,6 +72,7 @@ export function MetricLineChart({
           axisLine={false}
           tickMargin={8}
           width={44}
+          domain={yDomain}
           tickFormatter={(value) => (percent ? `${formatCompactNumber(value)}%` : formatCompactNumber(value))}
         />
         <ChartTooltip cursor={{ stroke: "var(--border)" }} content={<ChartTooltipContent />} />

@@ -8,8 +8,10 @@ const PLAN_SCHEMA = {
   properties: {
     plans: {
       type: "array",
-      minItems: 3,
-      maxItems: 3,
+      // Claude's structured-output schema only allows minItems/maxItems of
+      // 0 or 1 on arrays (anything else, e.g. requiring exactly 3, is
+      // rejected as invalid_request_error) — "exactly 3" is enforced via
+      // the prompt instead, with defensive slicing below.
       items: {
         type: "object",
         properties: {
@@ -54,7 +56,7 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
     messages: [
       {
         role: "user",
-        content: `Here are candidate video ideas for a creator's next Instagram Reel:\n\n${ideaRun.outputSummary}\n\nPick the 3 strongest, most distinct ideas from these candidates (or close variations of them) and turn each into its own concrete, ready-to-film hook and script for today. Give the creator genuine variety to choose from — not three versions of the same idea.`,
+        content: `Here are candidate video ideas for a creator's next Instagram Reel:\n\n${ideaRun.outputSummary}\n\nPick exactly 3 of the strongest, most distinct ideas from these candidates (or close variations of them) and turn each into its own concrete, ready-to-film hook and script for today. The "plans" array in your response must contain exactly 3 items — not fewer, not more. Give the creator genuine variety to choose from — not three versions of the same idea.`,
       },
     ],
   });
@@ -63,9 +65,10 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("Planning response had no text content");
   }
-  const { plans } = JSON.parse(textBlock.text) as {
+  const parsed = JSON.parse(textBlock.text) as {
     plans: { hook: string; script: string }[];
   };
+  const plans = parsed.plans.slice(0, 3);
 
   if (plans.length === 0) {
     throw new Error("Planning response had no plans");
