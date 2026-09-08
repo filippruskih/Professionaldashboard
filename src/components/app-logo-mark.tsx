@@ -15,11 +15,11 @@ export function AppLogoMark({ className }: { className?: string }) {
       strokeLinejoin="round"
       className={className}
     >
-      <path d="M2.5 19 L6.2 4.5 L9.9 19" />
-      <path d="M4 13.5 L8.4 13.5" />
-      <path d="M12.8 4.5 L12.8 19" />
-      <path d="M16.5 7.2 L21.5 7.2" />
-      <path d="M19 4.7 L19 9.7" />
+      <path d="M2.8 19 L6 4.5 L9.2 19" />
+      <path d="M4.5 13.5 L7.5 13.5" />
+      <path d="M11 4.5 L11 19" />
+      <path d="M12.8 6 L16.8 6" />
+      <path d="M14.8 4 L14.8 8" />
     </svg>
   );
 }
