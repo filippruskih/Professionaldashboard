@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.fbcdn.net" },
     ],
   },
+  experimental: {
+    // Next buffers the whole request body in memory when proxy.ts is
+    // active (it is here, for the session-cookie gate), capped at 10MB by
+    // default — silently truncating anything larger instead of erroring.
+    // Draft-reel uploads in src/app/api/drafts/route.ts blow past that, so
+    // this needs to at least match MAX_UPLOAD_BYTES there (300MB).
+    proxyClientMaxBodySize: "300mb",
+  },
   async headers() {
     return [
       {
