@@ -3,9 +3,10 @@ import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import ffmpegPath from "ffmpeg-static";
+import ffmpeg from "@ffmpeg-installer/ffmpeg";
 
 const execFileAsync = promisify(execFile);
+const ffmpegPath = ffmpeg.path;
 
 const MAX_FRAMES = 8;
 const FRAME_INTERVAL_SECONDS = 2;
@@ -18,11 +19,16 @@ export interface ExtractedFrame {
 // Samples evenly-spaced frames without needing ffprobe/duration: fps=1/2
 // pulls one frame every 2s, capped at 8 frames — enough to see how a
 // typical 15-90s reel evolves without an extra probing step or dependency.
+//
+// Uses @ffmpeg-installer/ffmpeg rather than ffmpeg-static: ffmpeg-static's
+// postinstall script downloads its binary from a GitHub release at
+// `npm install` time, which came back ENOENT on Railway's build — most
+// likely that download getting blocked/silently failing in the build
+// sandbox. @ffmpeg-installer's binary ships inside an ordinary
+// platform-specific npm package (resolved via optionalDependencies), so it
+// only ever needs the npm registry itself, which the build already
+// depends on.
 export async function extractFrames(videoPath: string): Promise<ExtractedFrame[]> {
-  if (!ffmpegPath) {
-    throw new Error("ffmpeg binary not available for this platform (ffmpeg-static returned null)");
-  }
-
   const workDir = await mkdtemp(path.join(tmpdir(), "draft-frames-"));
   try {
     await execFileAsync(ffmpegPath, [

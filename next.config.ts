@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // @ffmpeg-installer/ffmpeg resolves its platform-specific binary at
+  // runtime via a dynamic `require(computedPath)` (picking between several
+  // candidate node_modules layouts). Turbopack's static bundler tries to
+  // eagerly resolve every branch of that at build time and fails on
+  // whichever ones don't literally exist on the build machine — excluding
+  // it here makes Turbopack leave it as a native Node.js require instead,
+  // which resolves correctly at actual runtime.
+  serverExternalPackages: ["@ffmpeg-installer/ffmpeg"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.cdninstagram.com" },
