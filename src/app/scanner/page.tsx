@@ -1,12 +1,14 @@
 import { ScanSearch } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { ContentTabs } from "@/components/content-tabs";
-import { UploadForm } from "@/components/scanner/upload-form";
+import { EmptyState } from "@/components/empty-state";
 import { DraftList } from "@/components/scanner/draft-list";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+// Reached via the "+" button's dialog on any page (that's the primary
+// upload entry point now — see ScannerUploadDialog) or the back-link from
+// a scan's result page. This page itself is just the history of past scans.
 export default async function ScannerPage() {
   const drafts = await db.draftReel.findMany({
     orderBy: { createdAt: "desc" },
@@ -19,14 +21,19 @@ export default async function ScannerPage() {
         icon={ScanSearch}
         color="orange"
         title="Scanner"
-        description="Upload a draft reel for frame-by-frame feedback, a recommended hook, and a caption — before you post it."
+        description="Past draft reels you've scanned — tap the + in the bottom bar to scan a new one."
       />
 
-      <ContentTabs active="scanner" />
-
-      <UploadForm />
-
-      {drafts.length > 0 && <DraftList drafts={drafts} />}
+      {drafts.length === 0 ? (
+        <EmptyState
+          icon={ScanSearch}
+          color="orange"
+          title="No scans yet"
+          description="Tap the + button in the bottom bar to upload an in-progress reel for frame-by-frame feedback, a recommended hook, and a caption."
+        />
+      ) : (
+        <DraftList drafts={drafts} />
+      )}
     </div>
   );
 }

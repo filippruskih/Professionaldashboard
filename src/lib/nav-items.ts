@@ -3,6 +3,7 @@ import {
   Grid3x3,
   Home,
   MessageCircle,
+  ScanSearch,
   TrendingUp,
   User,
   type LucideIcon,
@@ -23,9 +24,12 @@ export interface NavItem {
 
 // The five bottom-bar tabs, in display order — mirrors Instagram's own
 // bottom nav (Home / grid-style content / notifications-ish / profile),
-// adapted to this app's sections. Reels, Posts, Series, and Scanner are
-// four real pages grouped under one "Content" tab via the ContentTabs
-// strip, rather than merged into a single page — each keeps its own state.
+// adapted to this app's sections. Reels, Posts, and Series are three real
+// pages grouped under one "Content" tab via the ContentTabs strip, rather
+// than merged into a single page — each keeps its own pagination. The
+// Scanner's own "+" trigger sits between Content and Insights in
+// BottomNav itself (see bottom-nav.tsx) rather than living in this array —
+// it opens an upload dialog directly instead of navigating to a page.
 export const bottomNavItems: NavItem[] = [
   { key: "home", title: "Home", url: "/", icon: Home, color: "blue", matchPrefixes: ["/"] },
   {
@@ -34,7 +38,7 @@ export const bottomNavItems: NavItem[] = [
     url: "/reels",
     icon: Grid3x3,
     color: "orange",
-    matchPrefixes: ["/reels", "/posts", "/series", "/scanner"],
+    matchPrefixes: ["/reels", "/posts", "/series"],
   },
   {
     key: "insights",
@@ -73,6 +77,18 @@ export const headerNavItem: NavItem = {
   matchPrefixes: ["/dms"],
 };
 
+// Not rendered as its own bottom-bar link (the "+" button in BottomNav
+// opens a dialog instead) — kept only so the header title resolves
+// correctly while viewing a scan's history or result page.
+export const scannerNavItem: NavItem = {
+  key: "scanner",
+  title: "Scanner",
+  url: "/scanner",
+  icon: ScanSearch,
+  color: "orange",
+  matchPrefixes: ["/scanner"],
+};
+
 function isItemActive(item: NavItem, pathname: string): boolean {
   return item.matchPrefixes.some((prefix) =>
     prefix === "/" ? pathname === "/" : pathname.startsWith(prefix)
@@ -86,7 +102,8 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
 // Used by the header's small "you are here" breadcrumb.
 export function getActiveNavItem(pathname: string): NavItem {
   return (
-    [...bottomNavItems, headerNavItem].find((item) => isItemActive(item, pathname)) ??
-    bottomNavItems[0]
+    [...bottomNavItems, headerNavItem, scannerNavItem].find((item) =>
+      isItemActive(item, pathname)
+    ) ?? bottomNavItems[0]
   );
 }

@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { Film, Image as ImageIcon, ListTree, ScanSearch } from "lucide-react";
+import { Film, Image as ImageIcon, ListTree } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { key: "reels", label: "Reels", href: "/reels", icon: Film },
   { key: "posts", label: "Posts", href: "/posts", icon: ImageIcon },
   { key: "series", label: "Series", href: "/series", icon: ListTree },
-  { key: "scanner", label: "Scanner", href: "/scanner", icon: ScanSearch },
 ] as const;
 
 // Reels, Posts, and Series are three separate real pages (each keeps its
