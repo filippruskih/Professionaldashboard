@@ -23,9 +23,9 @@ export interface NavItem {
 
 // The five bottom-bar tabs, in display order — mirrors Instagram's own
 // bottom nav (Home / grid-style content / notifications-ish / profile),
-// adapted to this app's sections. Reels, Posts, and Series are three real
-// pages grouped under one "Content" tab via the ContentTabs strip, rather
-// than merged into a single page — each keeps its own pagination.
+// adapted to this app's sections. Reels, Posts, Series, and Scanner are
+// four real pages grouped under one "Content" tab via the ContentTabs
+// strip, rather than merged into a single page — each keeps its own state.
 export const bottomNavItems: NavItem[] = [
   { key: "home", title: "Home", url: "/", icon: Home, color: "blue", matchPrefixes: ["/"] },
   {
@@ -34,7 +34,7 @@ export const bottomNavItems: NavItem[] = [
     url: "/reels",
     icon: Grid3x3,
     color: "orange",
-    matchPrefixes: ["/reels", "/posts", "/series"],
+    matchPrefixes: ["/reels", "/posts", "/series", "/scanner"],
   },
   {
     key: "insights",

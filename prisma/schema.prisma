@@ -213,3 +213,18 @@ model PostInsightSnapshot {
 
   @@index([postId])
 }
+
+// An in-progress reel uploaded for pre-publish feedback (the "Scanner").
+// storagePath points at a file on the Railway Volume (or local .data/
+// fallback in dev) — see src/lib/video/draft-storage.ts. analysisJson is
+// only populated once status reaches "analyzed".
+model DraftReel {
+  id           String    @id @default(cuid())
+  filename     String
+  storagePath  String
+  status       String    @default("uploaded") // "uploaded" | "processing" | "analyzed" | "failed"
+  error        String?
+  analysisJson String? // JSON: { breakdown: [{area, suggestion}], hook, caption }
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

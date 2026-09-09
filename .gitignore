@@ -40,3 +40,7 @@ next-env.d.ts
 /src/generated/prisma
 /prisma/dev.db
 /prisma/dev.db-journal
+
+# local draft-reel uploads (dev fallback storage — prod uses the Railway
+# Volume via DRAFTS_DIR)
+/.data
