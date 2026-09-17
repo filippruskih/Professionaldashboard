@@ -12,6 +12,12 @@ export const AGENT_MODEL = "claude-sonnet-5";
 export const NO_EM_DASH_INSTRUCTION =
   "Style rule: never use an em dash (—) anywhere in your response. Use a hyphen (-) or rewrite the sentence instead.";
 
+// For prompts whose output is rendered as plain text (no markdown
+// renderer) - without this, headings/bold show up as literal "##"/"**" in
+// the UI instead of being formatted.
+export const NO_MARKDOWN_INSTRUCTION =
+  "Style rule: write in plain prose only. Do not use markdown formatting of any kind - no ## headings, no ** bold, no bullet/numbered list syntax.";
+
 export function requireAnthropicKey() {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error(

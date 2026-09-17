@@ -1,5 +1,11 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
+import {
+  anthropic,
+  requireAnthropicKey,
+  AGENT_MODEL,
+  NO_EM_DASH_INSTRUCTION,
+  NO_MARKDOWN_INSTRUCTION,
+} from "@/lib/anthropic";
 import { getReelsWithLatestInsights } from "@/lib/stats";
 import { formatLabel } from "@/lib/content/classify";
 import type { AgentContext } from "@/lib/agents/registry";
@@ -89,7 +95,7 @@ export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: stri
           .map((f) => `${formatLabel(f.key)} (${Math.round(f.avgViews)})`)
           .join(", ") || "not enough data"}\nTopics that outperform (avg plays): ${topTopics
           .map((t) => `${t.key} (${Math.round(t.avgViews)})`)
-          .join(", ") || "not enough data"}\n\nWrite this creator's "Content DNA" - 2-3 short paragraphs identifying recurring hooks, tone, and patterns across their top reels, and what topics/formats to lean into. Be specific and reference the actual captions/data given, not generic advice.\n\n${NO_EM_DASH_INSTRUCTION}`,
+          .join(", ") || "not enough data"}\n\nWrite this creator's "Content DNA" - 2-3 short paragraphs identifying recurring hooks, tone, and patterns across their top reels, and what topics/formats to lean into. Be specific and reference the actual captions/data given, not generic advice.\n\n${NO_EM_DASH_INSTRUCTION}\n${NO_MARKDOWN_INSTRUCTION}`,
       },
     ],
   });
