@@ -1,4 +1,4 @@
-export const metadata = { title: "Privacy Policy — Creator Dashboard" };
+export const metadata = { title: "Privacy Policy - Creator Dashboard" };
 
 export default function PrivacyPolicyPage() {
   return (
@@ -10,11 +10,10 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Who we are">
         <p>
-          Creator Dashboard (&quot;we&quot;, &quot;us&quot;) is operated by [YOUR BUSINESS / LEGAL
-          NAME]. This policy explains what data we collect through your connected Instagram
+          Creator Dashboard (&quot;we&quot;, &quot;us&quot;) is operated by Filipp Ruskih. This policy explains what data we collect through your connected Instagram
           account, how we use it, and how you can request its deletion. Contact us at{" "}
-          <a href="mailto:[SUPPORT EMAIL]" className="underline">
-            [SUPPORT EMAIL]
+          <a href="mailto:filippruskih@gmail.com" className="underline">
+            filippruskih@gmail.com
           </a>
           .
         </p>
@@ -60,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Where it's stored">
         <p>
-          Data is stored in a private database hosted on [HOSTING PROVIDER, e.g. Railway], and
+          Data is stored in a private database hosted on Railway, and
           access to the application itself is restricted by a password. Your Instagram access
           token is stored so we can keep syncing your data on your behalf, and it is never
           exposed in the application&apos;s user interface.
@@ -70,10 +69,10 @@ export default function PrivacyPolicyPage() {
       <Section title="Data retention & deletion" id="data-deletion">
         <p>
           We retain your data for as long as your Instagram account stays connected. You can
-          request full deletion of your data — your connected account, synced media, insights
-          history, and any AI-generated content — at any time by emailing{" "}
-          <a href="mailto:[SUPPORT EMAIL]" className="underline">
-            [SUPPORT EMAIL]
+          request full deletion of your data - your connected account, synced media, insights
+          history, and any AI-generated content - at any time by emailing{" "}
+          <a href="mailto:filippruskih@gmail.com" className="underline">
+            filippruskih@gmail.com
           </a>{" "}
           with the subject line &quot;Data deletion request&quot;. We will confirm your identity,
           permanently delete your data, and reply to confirm once it&apos;s done, within 30 days.

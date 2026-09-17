@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL } from "@/lib/anthropic";
+import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
 import { getReelsWithLatestInsights } from "@/lib/stats";
 import { formatLabel } from "@/lib/content/classify";
 import type { AgentContext } from "@/lib/agents/registry";
@@ -47,7 +47,7 @@ export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: stri
 
   if (reels.length < MIN_REELS_FOR_DNA) {
     await ctx.log(
-      `Skipping Content DNA update — need at least ${MIN_REELS_FOR_DNA} reels, have ${reels.length}.`
+      `Skipping Content DNA update - need at least ${MIN_REELS_FOR_DNA} reels, have ${reels.length}.`
     );
     return;
   }
@@ -81,7 +81,7 @@ export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: stri
         content: `Here are this creator's top-performing Instagram Reels (captions, by plays):\n\n${topReels
           .map(
             (r) =>
-              `- "${r.caption ?? "(no caption)"}" — ${r.latestInsight?.views ?? "?"} plays (${
+              `- "${r.caption ?? "(no caption)"}" - ${r.latestInsight?.views ?? "?"} plays (${
                 r.format ? formatLabel(r.format) : "unclassified"
               })`
           )
@@ -89,7 +89,7 @@ export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: stri
           .map((f) => `${formatLabel(f.key)} (${Math.round(f.avgViews)})`)
           .join(", ") || "not enough data"}\nTopics that outperform (avg plays): ${topTopics
           .map((t) => `${t.key} (${Math.round(t.avgViews)})`)
-          .join(", ") || "not enough data"}\n\nWrite this creator's "Content DNA" — 2-3 short paragraphs identifying recurring hooks, tone, and patterns across their top reels, and what topics/formats to lean into. Be specific and reference the actual captions/data given, not generic advice.`,
+          .join(", ") || "not enough data"}\n\nWrite this creator's "Content DNA" - 2-3 short paragraphs identifying recurring hooks, tone, and patterns across their top reels, and what topics/formats to lean into. Be specific and reference the actual captions/data given, not generic advice.\n\n${NO_EM_DASH_INSTRUCTION}`,
       },
     ],
   });

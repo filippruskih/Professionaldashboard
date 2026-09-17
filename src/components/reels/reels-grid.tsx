@@ -54,7 +54,7 @@ export function ReelsGrid({ reels }: { reels: ReelWithLatestInsight[] }) {
 
               <div className="flex items-center justify-between pt-1">
                 <span className="text-sm font-semibold">
-                  {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "—"}{" "}
+                  {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "-"}{" "}
                   <span className="font-normal text-muted-foreground">engagement</span>
                 </span>
                 <Link
@@ -86,7 +86,7 @@ function Stat({
   return (
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium tabular-nums">{value != null ? format(value) : "—"}</span>
+      <span className="font-medium tabular-nums">{value != null ? format(value) : "-"}</span>
     </div>
   );
 }

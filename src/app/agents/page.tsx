@@ -26,7 +26,7 @@ export default async function AgentsPage() {
         icon={Bot}
         color="orange"
         title="Agents"
-        description="Analytics, Trend, Idea, Planning, and DM agents — live status and activity log."
+        description="Analytics, Trend, Idea, Planning, and DM agents - live status and activity log."
       />
 
       <div className="grid gap-4 md:grid-cols-2">

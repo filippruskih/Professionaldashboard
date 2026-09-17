@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL } from "@/lib/anthropic";
+import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
 
@@ -35,7 +35,7 @@ export async function runDmAgent(ctx: AgentContext): Promise<string> {
 
   if (threadsWithIncoming.length === 0) {
     await ctx.log(
-      "No new DM threads to draft replies for. (This requires the Instagram Messaging webhook to be receiving messages — see the DM Manager page.)",
+      "No new DM threads to draft replies for. (This requires the Instagram Messaging webhook to be receiving messages - see the DM Manager page.)",
       "warn"
     );
     throw new AgentSkip("Skipped: no DM threads awaiting a reply");
@@ -57,7 +57,7 @@ export async function runDmAgent(ctx: AgentContext): Promise<string> {
       messages: [
         {
           role: "user",
-          content: `Here is an Instagram DM conversation for a content creator's account:\n\n${conversation}\n\nCategorize this thread and, if it warrants a reply, draft a natural, friendly, first-person reply the creator can review and send themselves. Never draft a reply that claims to be automated or that commits to anything the creator hasn't said — keep it short and in their voice. If this looks like spam or doesn't need a reply, set draftReply to an empty string.`,
+          content: `Here is an Instagram DM conversation for a content creator's account:\n\n${conversation}\n\nCategorize this thread and, if it warrants a reply, draft a natural, friendly, first-person reply the creator can review and send themselves. Never draft a reply that claims to be automated or that commits to anything the creator hasn't said - keep it short and in their voice. If this looks like spam or doesn't need a reply, set draftReply to an empty string.\n\n${NO_EM_DASH_INSTRUCTION}`,
         },
       ],
     });

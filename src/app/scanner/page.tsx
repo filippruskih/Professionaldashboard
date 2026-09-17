@@ -21,7 +21,7 @@ export default async function ScannerPage() {
         icon={ScanSearch}
         color="orange"
         title="Scanner"
-        description="Past draft reels you've scanned — tap the + in the bottom bar to scan a new one."
+        description="Past draft reels you've scanned - tap the + in the bottom bar to scan a new one."
       />
 
       {drafts.length === 0 ? (

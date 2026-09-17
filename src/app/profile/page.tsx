@@ -52,7 +52,7 @@ export default async function ProfilePage({
         <CardHeader>
           <CardTitle>Instagram connection</CardTitle>
           <CardDescription>
-            Uses the official Instagram Graph API (Business Login) — your own account only, no
+            Uses the official Instagram Graph API (Business Login) - your own account only, no
             scraping.
           </CardDescription>
         </CardHeader>
@@ -82,7 +82,7 @@ export default async function ProfilePage({
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Reconnect if you&apos;ve just enabled a new permission (like DMs) — this
+                Reconnect if you&apos;ve just enabled a new permission (like DMs) - this
                 re-authorizes without disconnecting anything.
               </p>
             </div>
@@ -125,7 +125,7 @@ function SetupInstructions() {
     <div className="flex flex-col gap-4 text-sm">
       <p className="text-muted-foreground">
         Before you can connect, create a Meta app and generate credentials. This uses Meta&apos;s
-        <strong> Business Login for Instagram</strong> flow — for your own account, this needs no
+        <strong> Business Login for Instagram</strong> flow - for your own account, this needs no
         Meta App Review.
       </p>
       <Separator />
@@ -144,39 +144,39 @@ function SetupInstructions() {
           >
             developers.facebook.com/apps <ExternalLink className="size-3" />
           </a>{" "}
-          → Create App. Meta&apos;s exact screens shift over time — if asked what you want your
+          → Create App. Meta&apos;s exact screens shift over time - if asked what you want your
           app to do, pick <strong>APIs</strong> (not &quot;Sharing&quot;), then{" "}
           <strong>Instagram Graph API</strong> (not &quot;Instagram Basic Display API&quot;, which
           Meta retired). This lands you on{" "}
-          <strong>Instagram → API setup with Instagram Login</strong> in your app&apos;s sidebar —
+          <strong>Instagram → API setup with Instagram Login</strong> in your app&apos;s sidebar -
           steps 3–5 below all happen on that one page.
         </Step>
         <Step n={3} title="Add yourself as a tester">
           On the &quot;API setup with Instagram Login&quot; page, add your own Instagram account
           (Add account / Instagram testers) and accept the invite in the Instagram app if
-          prompted — this lets you authorize the app without Meta App Review.
+          prompted - this lets you authorize the app without Meta App Review.
         </Step>
-        <Step n={4} title="Set the redirect URI — must be HTTPS">
+        <Step n={4} title="Set the redirect URI - must be HTTPS">
           Same page, under &quot;Set up Instagram business login&quot; → Business login settings,
           add{" "}
           <code className="rounded bg-muted px-1 py-0.5">
             https://localhost:3000/api/instagram/callback
           </code>{" "}
           as a valid OAuth redirect URI. Instagram rejects plain <code>http://</code> here, even
-          for localhost — it must be <code>https://</code>. It will also ask for a deauthorize
+          for localhost - it must be <code>https://</code>. It will also ask for a deauthorize
           callback URL and a data deletion URL; any reachable URL (e.g. your local site root)
           works as a placeholder for local development.
         </Step>
         <Step n={5} title="Copy your App ID and App Secret">
           Use the <strong>Instagram App ID</strong> and <strong>Instagram App secret</strong>{" "}
-          shown on that same &quot;API setup with Instagram Login&quot; page — not the generic
+          shown on that same &quot;API setup with Instagram Login&quot; page - not the generic
           App ID/Secret on the app&apos;s Basic Settings page, which are for a different login
           flow and won&apos;t work here.
         </Step>
         <Step n={6} title="Add them to .env.local">
           Copy <code className="rounded bg-muted px-1 py-0.5">.env.local.example</code> to{" "}
           <code className="rounded bg-muted px-1 py-0.5">.env.local</code> (never edit the{" "}
-          <code>.example</code> file itself with real values — it&apos;s committed to git) and
+          <code>.example</code> file itself with real values - it&apos;s committed to git) and
           fill in <code className="rounded bg-muted px-1 py-0.5">IG_APP_ID</code>,{" "}
           <code className="rounded bg-muted px-1 py-0.5">IG_APP_SECRET</code>, and{" "}
           <code className="rounded bg-muted px-1 py-0.5">IG_REDIRECT_URI</code> (the{" "}
@@ -185,10 +185,10 @@ function SetupInstructions() {
         <Step n={7} title="Run the dev server with HTTPS">
           Stop the dev server if it&apos;s running, then start it with{" "}
           <code className="rounded bg-muted px-1 py-0.5">npm run dev:https</code> instead of{" "}
-          <code>npm run dev</code> — plain HTTP won&apos;t satisfy the redirect URI you just
+          <code>npm run dev</code> - plain HTTP won&apos;t satisfy the redirect URI you just
           registered. The first time, your browser will warn about the self-signed certificate at{" "}
           <code>https://localhost:3000</code>; click through (&quot;Advanced&quot; → &quot;Proceed
-          to localhost&quot;) — that&apos;s expected for local dev. Regular{" "}
+          to localhost&quot;) - that&apos;s expected for local dev. Regular{" "}
           <code>npm run dev</code> is fine again afterwards for everyday use, once connected.
         </Step>
       </ol>

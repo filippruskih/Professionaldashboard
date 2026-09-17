@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AppLogoMark } from "@/components/app-logo-mark";
 
-export const metadata = { title: "Log in — Creator Dashboard" };
+export const metadata = { title: "Log in - Creator Dashboard" };
 
 export default async function LoginPage({
   searchParams,

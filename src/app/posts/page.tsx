@@ -24,7 +24,7 @@ export default async function PostsPage({
         icon={ImageIcon}
         color="magenta"
         title="Posts"
-        description="Your photo and carousel posts — separate from Reels."
+        description="Your photo and carousel posts - separate from Reels."
       />
 
       <ContentTabs active="posts" />

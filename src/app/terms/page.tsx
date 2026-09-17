@@ -1,4 +1,4 @@
-export const metadata = { title: "Terms of Service — Creator Dashboard" };
+export const metadata = { title: "Terms of Service - Creator Dashboard" };
 
 export default function TermsOfServicePage() {
   return (
@@ -23,7 +23,7 @@ export default function TermsOfServicePage() {
       <Section title="2. The Service">
         <p>
           The Service connects to your own Instagram Business or Creator account via
-          Instagram&apos;s official Graph API to display analytics, and — where enabled —
+          Instagram&apos;s official Graph API to display analytics, and - where enabled -
           generate AI-assisted content suggestions and summaries. You must own or be authorized
           to manage the Instagram account you connect.
         </p>

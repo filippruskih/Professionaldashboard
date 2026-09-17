@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +44,7 @@ function CopyButton({ text }: { text: string }) {
 
 export function DraftDetail({ initial }: { initial: DraftData }) {
   const [draft, setDraft] = useState(initial);
+  const [regenerating, setRegenerating] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPending = draft.status === "uploaded" || draft.status === "processing";
 
@@ -63,6 +64,16 @@ export function DraftDetail({ initial }: { initial: DraftData }) {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [isPending, draft.id]);
+
+  async function handleRegenerate() {
+    setRegenerating(true);
+    try {
+      await fetch(`/api/drafts/${draft.id}/regenerate`, { method: "POST" });
+      setDraft((d) => ({ ...d, status: "processing", analysis: null, error: null }));
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -86,7 +97,7 @@ export function DraftDetail({ initial }: { initial: DraftData }) {
       {isPending && (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            Analyzing your draft — extracting frames and comparing against your trend research and
+            Analyzing your draft - extracting frames and comparing against your trend research and
             Content DNA. This can take a minute.
           </CardContent>
         </Card>
@@ -94,14 +105,29 @@ export function DraftDetail({ initial }: { initial: DraftData }) {
 
       {draft.status === "failed" && (
         <Card>
-          <CardContent className="py-6 text-sm text-destructive">
-            Analysis failed: {draft.error || "Unknown error"}
+          <CardContent className="flex flex-col gap-3 py-6 text-sm">
+            <p className="text-destructive">Analysis failed: {draft.error || "Unknown error"}</p>
+            <Button size="sm" variant="outline" className="w-fit" onClick={handleRegenerate} disabled={regenerating}>
+              <RefreshCw className={regenerating ? "animate-spin" : ""} />
+              Try again
+            </Button>
           </CardContent>
         </Card>
       )}
 
       {draft.status === "analyzed" && draft.analysis && (
         <div className="flex flex-col gap-4">
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-fit"
+            onClick={handleRegenerate}
+            disabled={regenerating}
+          >
+            <RefreshCw className={regenerating ? "animate-spin" : ""} />
+            {regenerating ? "Regenerating…" : "Don't like it? Regenerate"}
+          </Button>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Recommended hook</CardTitle>

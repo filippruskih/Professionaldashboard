@@ -29,7 +29,7 @@ export default async function DmsPage() {
         icon={MessageCircle}
         color="magenta"
         title="DMs"
-        description="Drafted replies for your review — nothing is ever sent automatically."
+        description="Drafted replies for your review - nothing is ever sent automatically."
       />
 
       <Alert>
@@ -39,9 +39,9 @@ export default async function DmsPage() {
           Instagram pushes DMs to this app via a webhook, registered once in your Meta app&apos;s
           dashboard. In Meta&apos;s Instagram product settings → Webhooks: add{" "}
           <code>{webhookUrl}</code> as the callback URL, set a verify token of your choosing, and
-          put that same value in your environment as <code>IG_WEBHOOK_VERIFY_TOKEN</code> — then
+          put that same value in your environment as <code>IG_WEBHOOK_VERIFY_TOKEN</code> - then
           subscribe to the <code>messages</code> field. Your connection also needs the{" "}
-          <code>instagram_business_manage_messages</code> permission — use the &quot;Reconnect
+          <code>instagram_business_manage_messages</code> permission - use the &quot;Reconnect
           Instagram&quot; button in Profile to re-authorize with it if you haven&apos;t already.
           Until both are done this page stays empty, and the DM agent (disabled by default on the
           Agents page) has nothing to draft against.

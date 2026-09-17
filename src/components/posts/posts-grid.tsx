@@ -53,7 +53,7 @@ export function PostsGrid({ posts }: { posts: PostWithLatestInsight[] }) {
 
               <div className="flex items-center justify-between pt-1">
                 <span className="text-sm font-semibold">
-                  {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "—"}{" "}
+                  {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "-"}{" "}
                   <span className="font-normal text-muted-foreground">engagement</span>
                 </span>
                 <Link
@@ -78,7 +78,7 @@ function Stat({ label, value }: { label: string; value: number | null | undefine
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium tabular-nums">
-        {value != null ? formatCompactNumber(value) : "—"}
+        {value != null ? formatCompactNumber(value) : "-"}
       </span>
     </div>
   );

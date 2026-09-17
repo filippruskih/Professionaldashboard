@@ -97,7 +97,7 @@ function Metric({
     <Card>
       <CardContent className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-xl font-semibold">{value != null ? format(value) : "—"}</p>
+        <p className="text-xl font-semibold">{value != null ? format(value) : "-"}</p>
       </CardContent>
     </Card>
   );

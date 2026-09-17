@@ -34,13 +34,13 @@ export default async function InsightsPage() {
         icon={TrendingUp}
         color="aqua"
         title="Insights"
-        description="Deterministic growth signals derived from your history — posting cadence, timing, and trend, not AI narrative."
+        description="Deterministic growth signals derived from your history - posting cadence, timing, and trend, not AI narrative."
       />
 
       {!hasAnyData ? (
         <Card>
           <CardContent className="py-16 text-center text-sm text-muted-foreground">
-            Sync some Reels or Posts first — these cards need real history to compute anything
+            Sync some Reels or Posts first - these cards need real history to compute anything
             useful.
           </CardContent>
         </Card>
@@ -65,7 +65,7 @@ export default async function InsightsPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-semibold">
-                    {consistency.daysSinceLastPost ?? "—"}
+                    {consistency.daysSinceLastPost ?? "-"}
                   </p>
                   <p className="text-xs text-muted-foreground">days since last post</p>
                 </div>
@@ -83,7 +83,7 @@ export default async function InsightsPage() {
             <CardContent>
               {!bestDays ? (
                 <p className="text-sm text-muted-foreground">
-                  Not enough data yet — need at least 5 posted items with insights.
+                  Not enough data yet - need at least 5 posted items with insights.
                 </p>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -132,7 +132,7 @@ export default async function InsightsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <IconBadge icon={Scale} color="magenta" size="sm" />
-                Content mix — Reels vs. Posts
+                Content mix - Reels vs. Posts
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -145,13 +145,13 @@ export default async function InsightsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Avg reach:{" "}
-                    {mix.reels.avgReach != null ? formatCompactNumber(mix.reels.avgReach) : "—"}
+                    {mix.reels.avgReach != null ? formatCompactNumber(mix.reels.avgReach) : "-"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Avg engagement:{" "}
                     {mix.reels.avgEngagementRate != null
                       ? formatPercent(mix.reels.avgEngagementRate)
-                      : "—"}
+                      : "-"}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 rounded-md border p-4">
@@ -162,13 +162,13 @@ export default async function InsightsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Avg reach:{" "}
-                    {mix.posts.avgReach != null ? formatCompactNumber(mix.posts.avgReach) : "—"}
+                    {mix.posts.avgReach != null ? formatCompactNumber(mix.posts.avgReach) : "-"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Avg engagement:{" "}
                     {mix.posts.avgEngagementRate != null
                       ? formatPercent(mix.posts.avgEngagementRate)
-                      : "—"}
+                      : "-"}
                   </p>
                 </div>
               </div>

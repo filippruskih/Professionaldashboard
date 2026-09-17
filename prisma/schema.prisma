@@ -128,11 +128,16 @@ model AgentLogEntry {
 }
 
 // The Planning agent's daily "post this" output, surfaced on Overview.
+// type "reel" uses hook/script; type "post" (a picture/carousel post) uses
+// concept/caption instead - the two content types don't share a shape.
 model Suggestion {
   id               String   @id @default(cuid())
   date             DateTime @default(now())
-  hook             String
-  script           String
+  type             String   @default("reel") // "reel" | "post"
+  hook             String?
+  script           String?
+  concept          String?
+  caption          String?
   sourceAgentRunId String?
   status           String   @default("new") // "new" | "used" | "dismissed"
   createdAt        DateTime @default(now())

@@ -66,7 +66,7 @@ export const AGENT_REGISTRY: Record<string, AgentDefinitionConfig> = {
     key: "dm",
     name: "DM manager",
     description:
-      "Categorizes Instagram DMs and drafts suggested replies for you to review — never sends automatically.",
+      "Categorizes Instagram DMs and drafts suggested replies for you to review - never sends automatically.",
     schedule: "*/15 * * * *",
     enabledByDefault: false,
     run: runDmAgent,

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL } from "@/lib/anthropic";
+import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
 
@@ -26,7 +26,7 @@ export async function runIdeaAgent(ctx: AgentContext): Promise<string> {
 
   if (!trends) {
     await ctx.log(
-      "No trend research available yet — run the Trend agent first for grounded ideas.",
+      "No trend research available yet - run the Trend agent first for grounded ideas.",
       "warn"
     );
     throw new AgentSkip("Skipped: no trend research to build on yet");
@@ -55,7 +55,9 @@ ${dna ? `This creator's Content DNA (what has historically worked for them):\n${
 Reels they've already posted recently (don't repeat these):
 ${recentCaptions.map((c) => `- ${c}`).join("\n") || "(none yet)"}
 
-Generate 3 concrete, specific video ideas for their next reel, grounded in the trend research above and (if given) their Content DNA. For each idea give: a one-line concept, and why it fits both the trend and their niche. Keep it under 300 words total.`,
+Generate 3 concrete, specific video ideas for their next reel, grounded in the trend research above and (if given) their Content DNA. For each idea give: a one-line concept, and why it fits both the trend and their niche. Keep it under 300 words total.
+
+${NO_EM_DASH_INSTRUCTION}`,
       },
     ],
   });

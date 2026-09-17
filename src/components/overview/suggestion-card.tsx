@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ChevronRight, Sparkles, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Image as ImageIcon, Sparkles, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/icon-badge";
@@ -11,8 +12,11 @@ import { formatDate } from "@/lib/format";
 interface Suggestion {
   id: string;
   date: string;
-  hook: string;
-  script: string;
+  type: string;
+  hook: string | null;
+  script: string | null;
+  concept: string | null;
+  caption: string | null;
 }
 
 export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
@@ -49,7 +53,7 @@ export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No suggestion available right now — you&apos;ve used or dismissed today&apos;s. New
+            No suggestion available right now - you&apos;ve used or dismissed today&apos;s. New
             ones land after tomorrow&apos;s scheduled Planning run, or trigger it now from the
             Agents tab (Idea, then Planning).
           </p>
@@ -58,13 +62,18 @@ export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
     );
   }
 
+  const isPost = suggestion.type === "post";
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <IconBadge icon={Sparkles} color="magenta" size="sm" />
+            <IconBadge icon={isPost ? ImageIcon : Sparkles} color="magenta" size="sm" />
             Today&apos;s suggestion
+            <Badge variant="outline" className="font-normal">
+              {isPost ? "Post" : "Reel"}
+            </Badge>
           </CardTitle>
           {suggestions.length > 1 && (
             <div className="flex items-center gap-1">
@@ -95,14 +104,33 @@ export function SuggestionCard({ suggestions }: { suggestions: Suggestion[] }) {
         <p className="text-xs text-muted-foreground">{formatDate(suggestion.date)}</p>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Hook</p>
-          <p className="text-sm font-medium">{suggestion.hook}</p>
-        </div>
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Script</p>
-          <p className="whitespace-pre-wrap text-sm text-muted-foreground">{suggestion.script}</p>
-        </div>
+        {isPost ? (
+          <>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Concept</p>
+              <p className="text-sm font-medium">{suggestion.concept}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Caption</p>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {suggestion.caption}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Hook</p>
+              <p className="text-sm font-medium">{suggestion.hook}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Script</p>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {suggestion.script}
+              </p>
+            </div>
+          </>
+        )}
         <div className="flex gap-2">
           <Button size="sm" disabled={pending} onClick={() => setStatus("used")}>
             <Check /> Mark as used

@@ -59,27 +59,27 @@ export default async function OverviewPage() {
               label="Followers"
               icon={Users}
               color="blue"
-              value={stats.followerCount != null ? formatCompactNumber(stats.followerCount) : "—"}
+              value={stats.followerCount != null ? formatCompactNumber(stats.followerCount) : "-"}
               delta={stats.followerDelta}
             />
             <StatTile
               label="Avg plays / reel"
               icon={Play}
               color="orange"
-              value={stats.avgPlays != null ? formatCompactNumber(stats.avgPlays) : "—"}
+              value={stats.avgPlays != null ? formatCompactNumber(stats.avgPlays) : "-"}
             />
             <StatTile
               label="Total plays"
               icon={TrendingUp}
               color="aqua"
-              value={stats.totalPlays != null ? formatCompactNumber(stats.totalPlays) : "—"}
+              value={stats.totalPlays != null ? formatCompactNumber(stats.totalPlays) : "-"}
             />
             <StatTile
               label="Avg engagement"
               icon={Zap}
               color="yellow"
               value={
-                stats.avgEngagementRate != null ? formatPercent(stats.avgEngagementRate) : "—"
+                stats.avgEngagementRate != null ? formatPercent(stats.avgEngagementRate) : "-"
               }
             />
           </div>
@@ -106,8 +106,11 @@ export default async function OverviewPage() {
                 suggestions={suggestions.map((s) => ({
                   id: s.id,
                   date: s.date.toISOString(),
+                  type: s.type,
                   hook: s.hook,
                   script: s.script,
+                  concept: s.concept,
+                  caption: s.caption,
                 }))}
               />
               {stats.topReel && <TopReelCard reel={stats.topReel} />}

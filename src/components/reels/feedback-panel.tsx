@@ -12,7 +12,7 @@ import type { FeedbackLoopResult } from "@/lib/feedback";
 
 function DeltaCell({ value, baseline }: { value: number | null; baseline: number | null }) {
   if (value == null || baseline == null || baseline === 0) {
-    return <span className="text-muted-foreground">—</span>;
+    return <span className="text-muted-foreground">-</span>;
   }
   const delta = (value - baseline) / baseline;
   return (
@@ -30,7 +30,7 @@ export function FeedbackPanel({ feedback }: { feedback: FeedbackLoopResult }) {
       <CardHeader>
         <CardTitle className="text-base">Feedback loop</CardTitle>
         <p className="text-sm text-muted-foreground">
-          How this reel compares to your history. &quot;Same length&quot; isn&apos;t shown —
+          How this reel compares to your history. &quot;Same length&quot; isn&apos;t shown -
           Instagram&apos;s API doesn&apos;t expose reel duration. Competitor comparisons are
           planned for a later phase.
         </p>
@@ -63,7 +63,7 @@ export function FeedbackPanel({ feedback }: { feedback: FeedbackLoopResult }) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {baseline.sampleSize === 0 ? (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground">-</span>
                     ) : (
                       <DeltaCell
                         value={insight?.engagementRate ?? null}
@@ -74,7 +74,7 @@ export function FeedbackPanel({ feedback }: { feedback: FeedbackLoopResult }) {
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {baseline.avgWatchTimeMs != null
                       ? formatSecondsFromMs(baseline.avgWatchTimeMs)
-                      : "—"}
+                      : "-"}
                   </TableCell>
                 </TableRow>
               ))}
@@ -82,8 +82,8 @@ export function FeedbackPanel({ feedback }: { feedback: FeedbackLoopResult }) {
           </Table>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          This reel: {insight?.views != null ? formatCompactNumber(insight.views) : "—"} plays,{" "}
-          {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "—"}{" "}
+          This reel: {insight?.views != null ? formatCompactNumber(insight.views) : "-"} plays,{" "}
+          {insight?.engagementRate != null ? formatPercent(insight.engagementRate) : "-"}{" "}
           engagement.
         </p>
       </CardContent>

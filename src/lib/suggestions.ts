@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 
-const MAX_ACTIVE_SUGGESTIONS = 3;
+// 3 reel suggestions + 1 post suggestion per Planning run (see
+// src/lib/agents/tasks/planning.ts).
+const MAX_ACTIVE_SUGGESTIONS = 4;
 
 export async function getActiveSuggestions() {
   return db.suggestion.findMany({

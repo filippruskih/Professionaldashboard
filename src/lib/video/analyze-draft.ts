@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL } from "@/lib/anthropic";
+import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
 import { extractFrames } from "@/lib/video/frames";
 import { draftFileExists } from "@/lib/video/draft-storage";
 import type Anthropic from "@anthropic-ai/sdk";
@@ -21,7 +21,7 @@ const ANALYSIS_SCHEMA = {
           },
           suggestion: {
             type: "string",
-            description: "A concrete, specific change or addition — not generic advice",
+            description: "A concrete, specific change or addition - not generic advice",
           },
         },
         required: ["area", "suggestion"],
@@ -65,7 +65,7 @@ async function getGroundingContext(): Promise<string> {
   }
   return parts.length > 0
     ? parts.join("\n\n")
-    : "No trend research or Content DNA profile available yet — analyze on the reel's own merits.";
+    : "No trend research or Content DNA profile available yet - analyze on the reel's own merits.";
 }
 
 // Runs in the background after upload (see src/app/api/drafts/route.ts).
@@ -112,12 +112,12 @@ export async function processDraftReel(draftId: string): Promise<void> {
           content: [
             {
               type: "text",
-              text: `The following are ${frames.length} evenly-spaced frames sampled from an in-progress Instagram Reel this creator hasn't posted yet, in chronological order. There is no audio/transcript — analyze the visuals only.\n\n${grounding}`,
+              text: `The following are ${frames.length} evenly-spaced frames sampled from an in-progress Instagram Reel this creator hasn't posted yet, in chronological order. There is no audio/transcript - analyze the visuals only.\n\n${grounding}`,
             },
             ...imageBlocks,
             {
               type: "text",
-              text: `Give frame-by-frame, concrete feedback on this draft before it gets posted: what to change, cut, or add (pacing, framing, text overlays, hook strength, visual variety, etc.), referencing specific frames/timestamps where useful. Compare it against the trend research and Content DNA above — call out where it already matches a working pattern and where it doesn't. Then give one recommended hook (first 1-2 seconds) and one ready-to-post Instagram caption. The caption is the post caption, not closed captions/subtitles.`,
+              text: `Give frame-by-frame, concrete feedback on this draft before it gets posted: what to change, cut, or add (pacing, framing, text overlays, hook strength, visual variety, etc.), referencing specific frames/timestamps where useful. Compare it against the trend research and Content DNA above - call out where it already matches a working pattern and where it doesn't. Then give one recommended hook (first 1-2 seconds) and one ready-to-post Instagram caption. The caption is the post caption, not closed captions/subtitles.\n\n${NO_EM_DASH_INSTRUCTION}`,
             },
           ],
         },

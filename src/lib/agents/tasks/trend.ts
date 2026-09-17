@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { anthropic, requireAnthropicKey, AGENT_MODEL } from "@/lib/anthropic";
+import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } from "@/lib/anthropic";
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
 
@@ -23,7 +23,7 @@ export async function runTrendAgent(ctx: AgentContext): Promise<string> {
   const nicheContext = await getNicheContext();
 
   if (!nicheContext) {
-    await ctx.log("No reels synced yet — can't infer a niche to research trends for.", "warn");
+    await ctx.log("No reels synced yet - can't infer a niche to research trends for.", "warn");
     throw new AgentSkip("Skipped: no content history yet");
   }
 
@@ -37,7 +37,7 @@ export async function runTrendAgent(ctx: AgentContext): Promise<string> {
     messages: [
       {
         role: "user",
-        content: `Here are captions and topic tags from this creator's recent Instagram Reels:\n\n${nicheContext}\n\nBased on this, infer their content niche in one short phrase, then research current (this week/month) trends, formats, sounds, or topics gaining traction in that niche on Instagram/TikTok. Search the web for real, current information — don't rely on prior knowledge alone. Output: a one-line niche identification, followed by 3-5 trends as a short bulleted list, each with a one-sentence "why it's working" note. Keep the whole thing under 250 words.`,
+        content: `Here are captions and topic tags from this creator's recent Instagram Reels:\n\n${nicheContext}\n\nBased on this, infer their content niche in one short phrase, then research current (this week/month) trends, formats, sounds, or topics gaining traction in that niche on Instagram/TikTok. Search the web for real, current information - don't rely on prior knowledge alone. Output: a one-line niche identification, followed by 3-5 trends as a short bulleted list, each with a one-sentence "why it's working" note. Keep the whole thing under 250 words.\n\n${NO_EM_DASH_INSTRUCTION}`,
       },
     ],
   });

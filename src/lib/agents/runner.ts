@@ -35,7 +35,7 @@ async function executeAgentRun(
   };
 
   if (!definition.enabled) {
-    await log("Agent is disabled — skipping run.", "warn");
+    await log("Agent is disabled - skipping run.", "warn");
     await db.agentRun.update({
       where: { id: runId },
       data: { status: "skipped", finishedAt: new Date(), outputSummary: "Disabled" },

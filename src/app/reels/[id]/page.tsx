@@ -92,7 +92,7 @@ export default async function ReelDetailPage({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Avg watch time is Instagram&apos;s closest available proxy for audience retention — the
+        Avg watch time is Instagram&apos;s closest available proxy for audience retention - the
         API doesn&apos;t expose a full second-by-second retention curve, only this and the
         in-app Insights screen do.
       </p>
@@ -126,7 +126,7 @@ function Metric({
     <Card>
       <CardContent className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-xl font-semibold">{value != null ? format(value) : "—"}</p>
+        <p className="text-xl font-semibold">{value != null ? format(value) : "-"}</p>
       </CardContent>
     </Card>
   );
