@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
           Creator Dashboard (&quot;we&quot;, &quot;us&quot;) is operated by Filipp Ruskih. This policy explains what data we collect through your connected Instagram
           account, how we use it, and how you can request its deletion. Contact us at{" "}
           <a href="mailto:filippruskih@gmail.com" className="underline">
-            filippruskih@gmail.com
+            Support Team
           </a>
           .
         </p>
@@ -72,7 +72,7 @@ export default function PrivacyPolicyPage() {
           request full deletion of your data - your connected account, synced media, insights
           history, and any AI-generated content - at any time by emailing{" "}
           <a href="mailto:filippruskih@gmail.com" className="underline">
-            filippruskih@gmail.com
+            Support Team
           </a>{" "}
           with the subject line &quot;Data deletion request&quot;. We will confirm your identity,
           permanently delete your data, and reply to confirm once it&apos;s done, within 30 days.
@@ -85,8 +85,8 @@ export default function PrivacyPolicyPage() {
         <p>
           You can request a copy of the data we hold about you, correction of inaccurate data, or
           deletion (see above) at any time by contacting{" "}
-          <a href="mailto:[SUPPORT EMAIL]" className="underline">
-            [SUPPORT EMAIL]
+          <a href="mailto:filippruskih@gmail.com" className="underline">
+            Support Team
           </a>
           .
         </p>

@@ -66,10 +66,15 @@ export interface OverviewStats {
 }
 
 export async function getOverviewStats(): Promise<OverviewStats> {
-  const [followerSnapshots, reels] = await Promise.all([
-    db.followerSnapshot.findMany({ orderBy: { capturedAt: "asc" } }),
+  const [recentSnapshotsDesc, reels] = await Promise.all([
+    // Capped rather than fetching the whole history - only used for the
+    // latest/previous delta and a recent-trend chart, so a bounded window
+    // is correct, not just faster, and won't keep growing as sync accrues
+    // more daily rows over time.
+    db.followerSnapshot.findMany({ orderBy: { capturedAt: "desc" }, take: 180 }),
     getReelsWithLatestInsights(),
   ]);
+  const followerSnapshots = [...recentSnapshotsDesc].reverse();
 
   const latestSnapshot = followerSnapshots.at(-1) ?? null;
   const previousSnapshot =
