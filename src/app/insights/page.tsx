@@ -5,6 +5,7 @@ import { IconBadge } from "@/components/icon-badge";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { MetricLineChart } from "@/components/metric-line-chart";
+import { ExportButton } from "@/components/export-button";
 import {
   getBestDayToPost,
   getContentMixComparison,
@@ -35,6 +36,7 @@ export default async function InsightsPage() {
         color="aqua"
         title="Insights"
         description="Deterministic growth signals derived from your history - posting cadence, timing, and trend, not AI narrative."
+        action={<ExportButton />}
       />
 
       {!hasAnyData ? (
