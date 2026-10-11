@@ -17,9 +17,9 @@ import type Anthropic from "@anthropic-ai/sdk";
 // drop-off pattern from the reel's actual frames plus that one real
 // number, it does not read measured per-second data because no such data
 // is available to any API caller, including the account owner.
-export async function analyzeRetentionDropoff(reelId: string): Promise<string> {
-  const reel = await db.reel.findUnique({
-    where: { id: reelId },
+export async function analyzeRetentionDropoff(userId: string, reelId: string): Promise<string> {
+  const reel = await db.reel.findFirst({
+    where: { id: reelId, userId },
     include: { insights: { orderBy: { capturedAt: "desc" }, take: 1 } },
   });
   if (!reel) throw new Error("Reel not found");
@@ -31,7 +31,7 @@ export async function analyzeRetentionDropoff(reelId: string): Promise<string> {
     );
   }
 
-  const account = await db.account.findFirst();
+  const account = await db.account.findUnique({ where: { userId } });
   if (!account) throw new Error("No Instagram account connected.");
 
   const videoUrl = await getMediaVideoUrl(account.accessToken, reel.igMediaId);
@@ -82,8 +82,8 @@ ${NO_MARKDOWN_INSTRUCTION}`,
   const analysis = textBlock && textBlock.type === "text" ? textBlock.text.trim() : "";
   if (!analysis) throw new Error("Analysis response had no text content");
 
-  await db.reel.update({
-    where: { id: reelId },
+  await db.reel.updateMany({
+    where: { id: reelId, userId },
     data: { retentionHypothesis: analysis, retentionHypothesisAt: new Date() },
   });
 

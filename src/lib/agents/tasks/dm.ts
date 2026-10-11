@@ -25,7 +25,7 @@ export async function runDmAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Looking for DM threads that need a draft reply…");
 
   const threads = await db.dmThread.findMany({
-    where: { draftStatus: "none" },
+    where: { userId: ctx.userId, draftStatus: "none" },
     orderBy: { lastMessageAt: "desc" },
     take: MAX_THREADS_PER_RUN,
     include: { messages: { orderBy: { sentAt: "asc" } } },

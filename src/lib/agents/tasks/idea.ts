@@ -4,16 +4,17 @@ import { getAgentSettings, parseExcludedTopics } from "@/lib/agent-settings";
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
 
-async function getLatestAgentOutput(key: string): Promise<string | null> {
+async function getLatestAgentOutput(userId: string, key: string): Promise<string | null> {
   const run = await db.agentRun.findFirst({
-    where: { agent: { key }, status: "succeeded" },
+    where: { agent: { key, userId }, status: "succeeded" },
     orderBy: { startedAt: "desc" },
   });
   return run?.outputSummary ?? null;
 }
 
-async function getRecentCaptions(): Promise<string[]> {
+async function getRecentCaptions(userId: string): Promise<string[]> {
   const reels = await db.reel.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     take: 10,
     select: { caption: true },
@@ -67,7 +68,7 @@ function formatIdeaList(label: string, items: IdeaItem[]): string {
 
 export async function runIdeaAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Reading the latest trend research…");
-  const trends = await getLatestAgentOutput("trend");
+  const trends = await getLatestAgentOutput(ctx.userId, "trend");
 
   if (!trends) {
     await ctx.log(
@@ -77,10 +78,13 @@ export async function runIdeaAgent(ctx: AgentContext): Promise<string> {
     throw new AgentSkip("Skipped: no trend research to build on yet");
   }
 
-  const dnaProfile = await db.contentDnaProfile.findFirst({ orderBy: { generatedAt: "desc" } });
+  const dnaProfile = await db.contentDnaProfile.findFirst({
+    where: { userId: ctx.userId },
+    orderBy: { generatedAt: "desc" },
+  });
   const dna = dnaProfile?.narrative ?? null;
-  const recentCaptions = await getRecentCaptions();
-  const settings = await getAgentSettings();
+  const recentCaptions = await getRecentCaptions(ctx.userId);
+  const settings = await getAgentSettings(ctx.userId);
   const excludedTopics = parseExcludedTopics(settings.excludedTopics);
 
   requireAnthropicKey();
@@ -126,6 +130,7 @@ ${NO_EM_DASH_INSTRUCTION}`,
 
   await db.ideaBatch.create({
     data: {
+      userId: ctx.userId,
       nicheIdeasJson: JSON.stringify(parsed.nicheIdeas),
       freshIdeasJson: JSON.stringify(parsed.freshIdeas),
       sourceAgentRunId: ctx.runId,

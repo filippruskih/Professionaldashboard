@@ -7,6 +7,9 @@ import { runDmAgent } from "./tasks/dm";
 import { runDailyReportAgent } from "./tasks/daily-report";
 
 export interface AgentContext {
+  // Every task's queries must be scoped to this - agents run once per
+  // user, and nothing about a task's own code is otherwise user-aware.
+  userId: string;
   runId: string;
   log: (message: string, level?: "info" | "warn" | "error") => Promise<void>;
 }

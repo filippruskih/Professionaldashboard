@@ -1,12 +1,16 @@
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUserId, unauthorized } from "@/lib/session";
 import { draftStoragePath, saveDraftFile } from "@/lib/video/draft-storage";
 import { processDraftReel } from "@/lib/video/analyze-draft";
 
 const MAX_UPLOAD_BYTES = 300 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const formData = await request.formData();
   const file = formData.get("video");
 
@@ -21,7 +25,7 @@ export async function POST(request: Request) {
   }
 
   const draft = await db.draftReel.create({
-    data: { filename: file.name || "draft.mp4", storagePath: "", status: "uploaded" },
+    data: { userId, filename: file.name || "draft.mp4", storagePath: "", status: "uploaded" },
   });
 
   const extension = path.extname(file.name) || ".mp4";

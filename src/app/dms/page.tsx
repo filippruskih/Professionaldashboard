@@ -4,11 +4,13 @@ import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { DmThreadCard } from "@/components/dms/dm-thread-card";
 import { getDmThreads } from "@/lib/dm";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function DmsPage() {
-  const threads = await getDmThreads();
+  const userId = await requireUserId();
+  const threads = await getDmThreads(userId);
 
   // IG_REDIRECT_URI is "https://<host>/api/instagram/callback" — reusing
   // its origin means this always shows the *actual* webhook URL for

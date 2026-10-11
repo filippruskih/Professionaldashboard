@@ -9,6 +9,7 @@ import { InsightsTabs } from "@/components/insights/insights-tabs";
 import { getRetentionOverview, type RetentionLeaderboardItem } from "@/lib/retention";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
 import { formatLabel } from "@/lib/content/classify";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,8 @@ function LeaderboardRow({ item }: { item: RetentionLeaderboardItem }) {
 }
 
 export default async function RetentionPage() {
-  const overview = await getRetentionOverview();
+  const userId = await requireUserId();
+  const overview = await getRetentionOverview(userId);
 
   return (
     <div className="flex flex-1 flex-col gap-4">

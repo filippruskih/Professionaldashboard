@@ -12,10 +12,45 @@ datasource db {
   provider = "postgresql"
 }
 
-// The connected Instagram professional account. Single row for this
-// single-user app.
+// A real account on the site (email + password), separate from the
+// Instagram account it connects. Every other model that used to assume
+// "the one creator using this app" now hangs off userId instead - see
+// each model's own comment for whether it carries userId directly or is
+// scoped indirectly through a parent relation.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  // Nullable only to represent an "unclaimed" bootstrap row created by the
+  // migration that introduced this table, for any data that existed
+  // before multi-user accounts did - see that migration's SQL. A null
+  // here means "no password set yet," not a bug; login always rejects it,
+  // and signup treats a matching unclaimed email as a claim (sets the
+  // password) rather than a duplicate-email error.
+  passwordHash String?
+  createdAt    DateTime @default(now())
+
+  account           Account?
+  followerSnapshots FollowerSnapshot[]
+  reels             Reel[]
+  series            Series[]
+  posts             Post[]
+  agentDefinitions  AgentDefinition[]
+  agentSettings     AgentSettings?
+  suggestions       Suggestion[]
+  contentDnaProfiles ContentDnaProfile[]
+  bestPractices     BestPractice[]
+  ideaBatches       IdeaBatch[]
+  dmThreads         DmThread[]
+  calendarEntries   CalendarEntry[]
+  draftReels        DraftReel[]
+  dailyReports      DailyReport[]
+}
+
+// The connected Instagram professional account - one per User.
 model Account {
   id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   igUserId       String   @unique
   username       String
   accountType    String?
@@ -30,6 +65,8 @@ model Account {
 // growth chart possible.
 model FollowerSnapshot {
   id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   capturedAt    DateTime @default(now())
   followerCount Int
   followsCount  Int
@@ -40,10 +77,14 @@ model FollowerSnapshot {
   // top of the API's own documented limits, not a sync-breaking error.
   newFollows    Int?
   newUnfollows  Int?
+
+  @@index([userId])
 }
 
 model Reel {
   id               String                @id @default(cuid())
+  userId           String
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   igMediaId        String                @unique
   permalink        String
   caption          String?
@@ -76,6 +117,7 @@ model Reel {
   updatedAt        DateTime              @updatedAt
   insights         ReelInsightSnapshot[]
 
+  @@index([userId])
   @@index([seriesId])
 }
 
@@ -83,16 +125,21 @@ model Reel {
 // "Account Growth Journey"), shown from its start date.
 model Series {
   id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String
   description String?
   startDate   DateTime @default(now())
   createdAt   DateTime @default(now())
   reels       Reel[]
+
+  @@index([userId])
 }
 
-// Point-in-time snapshot of a single reel's stats. Historical rows let
-// us chart a reel's performance over time and compare it against past
-// reels rather than only ever seeing "latest" numbers.
+// Point-in-time snapshot of a single reel's stats. Scoped indirectly
+// through its Reel (already userId-scoped) rather than carrying its own
+// userId - every query reaches this through a Reel that was itself
+// already verified to belong to the current user.
 model ReelInsightSnapshot {
   id                String   @id @default(cuid())
   reelId            String
@@ -112,11 +159,13 @@ model ReelInsightSnapshot {
   @@index([reelId])
 }
 
-// One row per agent in the registry (src/lib/agents/registry.ts). Seeded
+// One row per agent per user (src/lib/agents/registry.ts). Seeded
 // automatically on first access rather than via a separate seed script.
 model AgentDefinition {
   id          String     @id @default(cuid())
-  key         String     @unique
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key         String
   name        String
   description String
   // "off" | "daily" | "weekly" | "monthly" - "off" only stops the
@@ -134,17 +183,23 @@ model AgentDefinition {
   dayOfMonth  Int        @default(1)
   createdAt   DateTime   @default(now())
   runs        AgentRun[]
+
+  @@unique([userId, key])
 }
 
-// Single-row settings that shape what the Idea/Planning agents suggest.
+// Per-user settings that shape what the Idea/Planning agents suggest.
 model AgentSettings {
   id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Free text (one topic/thing per line) the creator never wants
   // suggested - fed into the Idea and Planning agent prompts verbatim.
   excludedTopics String?
   updatedAt      DateTime @updatedAt
 }
 
+// Scoped indirectly through AgentDefinition (agent.userId), not its own
+// userId column.
 model AgentRun {
   id            String          @id @default(cuid())
   agentId       String
@@ -170,12 +225,14 @@ model AgentLogEntry {
 }
 
 // The Planning agent's daily "post this" output, surfaced on Overview.
-// type "reel" uses hook/script; type "post" (a picture/carousel post) uses
-// concept/caption instead - the two content types don't share a shape.
+// type "reel" uses hook/script; type "post"/"story" use concept/caption
+// instead - the shapes don't share fields.
 model Suggestion {
   id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date             DateTime @default(now())
-  type             String   @default("reel") // "reel" | "post"
+  type             String   @default("reel") // "reel" | "post" | "story"
   hook             String?
   script           String?
   concept          String?
@@ -183,6 +240,8 @@ model Suggestion {
   sourceAgentRunId String?
   status           String   @default("new") // "new" | "used" | "dismissed"
   createdAt        DateTime @default(now())
+
+  @@index([userId])
 }
 
 // Versioned snapshot of "what consistently works" for this creator, built by
@@ -190,11 +249,15 @@ model Suggestion {
 // (not a single row) so the Content DNA page can show how it's evolved.
 model ContentDnaProfile {
   id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   generatedAt       DateTime @default(now())
   narrative         String
   topFormatsJson    String // JSON: [{ format, avgViews, count }]
   topTopicsJson     String // JSON: [{ topic, avgViews, count }]
   sourceAgentRunId  String?
+
+  @@index([userId])
 }
 
 // High-conviction, durable recommendations ("you should really do X") the
@@ -205,12 +268,16 @@ model ContentDnaProfile {
 // itself.
 model BestPractice {
   id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title            String
   description      String
   status           String   @default("open") // "open" | "done" | "dismissed"
   sourceAgentRunId String?
   createdAt        DateTime @default(now())
   resolvedAt       DateTime?
+
+  @@index([userId])
 }
 
 // The Idea agent's raw output, split into two distinct buckets rather
@@ -220,10 +287,14 @@ model BestPractice {
 // AgentRun.outputSummary for backward-compatible prompt construction).
 model IdeaBatch {
   id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   generatedAt      DateTime @default(now())
   nicheIdeasJson   String // JSON: [{ concept, why }]
   freshIdeasJson   String // JSON: [{ concept, why }]
   sourceAgentRunId String?
+
+  @@index([userId])
 }
 
 // A DM conversation, populated by the Instagram Messaging webhook receiver
@@ -233,7 +304,11 @@ model IdeaBatch {
 // nothing is ever sent automatically.
 model DmThread {
   id                  String      @id @default(cuid())
-  igThreadId          String      @unique
+  userId              String
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // The other participant's Instagram id - unique per user, not
+  // globally, since two CMPND users can both be DMing the same person.
+  igThreadId          String
   participantUsername String?
   category            String? // "question" | "collab" | "fan" | "spam" | "business" | "other"
   draftReply          String?
@@ -242,17 +317,25 @@ model DmThread {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   messages            DmMessage[]
+
+  @@unique([userId, igThreadId])
+  @@index([userId])
 }
 
+// Scoped indirectly through its DmThread, same reasoning as
+// ReelInsightSnapshot.
 model DmMessage {
   id          String   @id @default(cuid())
   threadId    String
   thread      DmThread @relation(fields: [threadId], references: [id])
-  igMessageId String   @unique
+  // Unique per thread, not globally - when two CMPND users DM each other,
+  // the same message arrives as a webhook event for both accounts.
+  igMessageId String
   fromUser    Boolean // true = sent by the DM participant, false = sent by the account owner
   text        String?
   sentAt      DateTime
 
+  @@unique([threadId, igMessageId])
   @@index([threadId])
 }
 
@@ -261,6 +344,8 @@ model DmMessage {
 // classification) don't apply. mediaType stands in for "format."
 model Post {
   id        String                @id @default(cuid())
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   igMediaId String                @unique
   permalink String
   caption   String?
@@ -271,8 +356,12 @@ model Post {
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
   insights  PostInsightSnapshot[]
+
+  @@index([userId])
 }
 
+// Scoped indirectly through its Post, same reasoning as
+// ReelInsightSnapshot.
 model PostInsightSnapshot {
   id                String   @id @default(cuid())
   postId            String
@@ -296,6 +385,8 @@ model PostInsightSnapshot {
 // only populated once status reaches "analyzed".
 model DraftReel {
   id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   filename     String
   storagePath  String
   status       String    @default("uploaded") // "uploaded" | "processing" | "analyzed" | "failed"
@@ -303,6 +394,8 @@ model DraftReel {
   analysisJson String? // JSON: { breakdown: [{area, suggestion}], hook, caption }
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 // A planned (not yet posted) piece of content for a specific date - purely
@@ -313,8 +406,10 @@ model DraftReel {
 // a stored link - see lib/calendar.ts.
 model CalendarEntry {
   id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date               DateTime
-  contentType        String // "reel" | "post"
+  contentType        String // "reel" | "post" | "story"
   title              String // the hook, or a short post concept
   notes              String? // script, caption, or free notes
   status             String   @default("planned") // "planned" | "drafted" | "posted" | "skipped"
@@ -322,6 +417,7 @@ model CalendarEntry {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  @@index([userId])
   @@index([date])
 }
 
@@ -332,6 +428,8 @@ model CalendarEntry {
 // they were that day, even as history keeps accruing.
 model DailyReport {
   id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   date             DateTime  @default(now())
   summary          String
   statsJson        String
@@ -339,4 +437,6 @@ model DailyReport {
   emailError       String?
   sourceAgentRunId String?
   createdAt        DateTime  @default(now())
+
+  @@index([userId])
 }

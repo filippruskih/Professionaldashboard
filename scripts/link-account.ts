@@ -8,7 +8,10 @@
 // instead, so it never passed through that route.
 //
 // Usage (run from the repo root):
-//   DATABASE_URL="<target database's connection string>" npx tsx scripts/link-account.ts "<access-token>"
+//   DATABASE_URL="<target database's connection string>" npx tsx scripts/link-account.ts "<access-token>" "<user-email>"
+//
+// <user-email> is the CMPND account (see /signup) the Instagram account
+// gets linked to - that user has to exist already.
 //
 // DATABASE_URL should point at whichever database this token's account
 // belongs in (e.g. the isolated test instance's database) — NOT
@@ -21,8 +24,15 @@ import { getProfile } from "../src/lib/instagram/client";
 
 async function main() {
   const token = process.argv[2];
-  if (!token) {
-    console.error('Usage: DATABASE_URL="..." npx tsx scripts/link-account.ts "<access-token>"');
+  const email = process.argv[3]?.trim().toLowerCase();
+  if (!token || !email) {
+    console.error('Usage: DATABASE_URL="..." npx tsx scripts/link-account.ts "<access-token>" "<user-email>"');
+    process.exit(1);
+  }
+
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) {
+    console.error(`No CMPND user with email ${email} - sign up first.`);
     process.exit(1);
   }
 
@@ -39,7 +49,7 @@ async function main() {
     // using it as-is with a conservative 24h assumed expiry rather than
     // failing outright.
     console.warn(
-      "Could not exchange for a long-lived token (it may already be one) — using it as-is:",
+      "Could not exchange for a long-lived token (it may already be one) - using it as-is:",
       error instanceof Error ? error.message : error
     );
     tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -48,9 +58,16 @@ async function main() {
   const profile = await getProfile(accessToken);
   console.log(`Fetched profile: @${profile.username} (${profile.id})`);
 
+  const existingOwner = await db.account.findUnique({ where: { igUserId: profile.id } });
+  if (existingOwner && existingOwner.userId !== user.id) {
+    console.error(`@${profile.username} is already linked to a different CMPND user - not overwriting.`);
+    process.exit(1);
+  }
+
   await db.account.upsert({
-    where: { igUserId: profile.id },
+    where: { userId: user.id },
     create: {
+      userId: user.id,
       igUserId: profile.id,
       username: profile.username,
       accountType: profile.accountType,
@@ -58,6 +75,7 @@ async function main() {
       tokenExpiresAt,
     },
     update: {
+      igUserId: profile.id,
       username: profile.username,
       accountType: profile.accountType,
       accessToken,
@@ -65,7 +83,7 @@ async function main() {
     },
   });
 
-  console.log(`Linked @${profile.username} into this database's Account table.`);
+  console.log(`Linked @${profile.username} to ${email}.`);
 }
 
 main()

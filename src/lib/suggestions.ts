@@ -4,9 +4,9 @@ import { db } from "@/lib/db";
 // Planning run (see src/lib/agents/tasks/planning.ts).
 const MAX_ACTIVE_SUGGESTIONS = 5;
 
-export async function getActiveSuggestions() {
+export async function getActiveSuggestions(userId: string) {
   return db.suggestion.findMany({
-    where: { status: "new" },
+    where: { userId, status: "new" },
     orderBy: { date: "desc" },
     take: MAX_ACTIVE_SUGGESTIONS,
   });

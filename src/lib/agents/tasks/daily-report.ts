@@ -26,15 +26,15 @@ export async function runDailyReportAgent(ctx: AgentContext): Promise<string> {
 
   const [stats, consistency, suggestions, ideaBatch, trendRun, openBestPractices] =
     await Promise.all([
-      getOverviewStats(),
-      getPostingConsistency(),
-      getActiveSuggestions(),
-      getLatestIdeaBatch(),
+      getOverviewStats(ctx.userId),
+      getPostingConsistency(ctx.userId),
+      getActiveSuggestions(ctx.userId),
+      getLatestIdeaBatch(ctx.userId),
       db.agentRun.findFirst({
-        where: { agent: { key: "trend" }, status: "succeeded" },
+        where: { agent: { key: "trend", userId: ctx.userId }, status: "succeeded" },
         orderBy: { startedAt: "desc" },
       }),
-      db.bestPractice.count({ where: { status: "open" } }),
+      db.bestPractice.count({ where: { userId: ctx.userId, status: "open" } }),
     ]);
 
   // Frozen at generation time rather than re-derived when a report is
@@ -109,16 +109,22 @@ ${NO_MARKDOWN_INSTRUCTION}`,
 
   const report = await db.dailyReport.create({
     data: {
+      userId: ctx.userId,
       summary: summary || "No briefing generated.",
       statsJson: JSON.stringify(reportStats),
       sourceAgentRunId: ctx.runId,
     },
   });
 
-  if (isEmailConfigured()) {
+  const user = await db.user.findUnique({ where: { id: ctx.userId }, select: { email: true } });
+  // Placeholder addresses belong to the unclaimed bootstrap account the
+  // multi-user migration created - not a real inbox.
+  const recipient = user && !user.email.endsWith("@placeholder.local") ? user.email : null;
+
+  if (isEmailConfigured() && recipient) {
     await ctx.log("Emailing today's report…");
     try {
-      await sendDailyReportEmail({ date: report.date, summary: report.summary, stats: reportStats });
+      await sendDailyReportEmail(recipient, { date: report.date, summary: report.summary, stats: reportStats });
       await db.dailyReport.update({ where: { id: report.id }, data: { emailSentAt: new Date() } });
       await ctx.log("Report emailed.");
     } catch (error) {
@@ -127,7 +133,11 @@ ${NO_MARKDOWN_INSTRUCTION}`,
       await ctx.log(`Email failed: ${message}`, "warn");
     }
   } else {
-    await ctx.log("Email not configured (RESEND_API_KEY/REPORT_EMAIL_TO) - report saved in-app only.");
+    await ctx.log(
+      recipient
+        ? "Email not configured (RESEND_API_KEY) - report saved in-app only."
+        : "No deliverable email on this account - report saved in-app only."
+    );
   }
 
   return summary || "Daily report generated.";

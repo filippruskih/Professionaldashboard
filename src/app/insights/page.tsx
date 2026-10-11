@@ -18,17 +18,19 @@ import { getLatestContentDna } from "@/lib/content-dna";
 import { formatLabel } from "@/lib/content/classify";
 import { formatCompactNumber, formatDate, formatPercent } from "@/lib/format";
 import { db } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function InsightsPage() {
+  const userId = await requireUserId();
   const [consistency, bestDays, trend, mix, dnaProfile, bestPractices] = await Promise.all([
-    getPostingConsistency(),
-    getBestDayToPost(),
-    getEngagementTrend(),
-    getContentMixComparison(),
-    getLatestContentDna(),
-    db.bestPractice.findMany({ where: { status: "open" }, orderBy: { createdAt: "desc" } }),
+    getPostingConsistency(userId),
+    getBestDayToPost(userId),
+    getEngagementTrend(userId),
+    getContentMixComparison(userId),
+    getLatestContentDna(userId),
+    db.bestPractice.findMany({ where: { userId, status: "open" }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const hasAnyData = consistency.daysSinceLastPost != null;

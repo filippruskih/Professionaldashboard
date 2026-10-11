@@ -10,6 +10,7 @@ import { MetricLineChart } from "@/components/metric-line-chart";
 import { BackLink } from "@/components/back-link";
 import { getPostDetail, mediaTypeLabel } from "@/lib/posts";
 import { formatDate, formatPercent } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -18,8 +19,9 @@ export default async function PostDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userId = await requireUserId();
   const { id } = await params;
-  const post = await getPostDetail(id);
+  const post = await getPostDetail(userId, id);
   if (!post) notFound();
 
   const insight = post.latestInsight;

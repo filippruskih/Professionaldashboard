@@ -30,10 +30,17 @@ function computeEngagementRate(totalInteractions: number | null, reach: number |
   return totalInteractions / reach;
 }
 
-async function syncReel(accessToken: string, item: InstagramMedia) {
+// Upsert keyed on igMediaId *and* userId: if a reel with this media id
+// somehow already belongs to a different user (e.g. an Instagram account
+// that was disconnected from one CMPND user and connected to another),
+// the where won't match, the create collides on igMediaId's unique
+// constraint, and this throws - failing closed instead of silently
+// writing into someone else's rows.
+async function syncReel(userId: string, accessToken: string, item: InstagramMedia) {
   const savedReel = await db.reel.upsert({
-    where: { igMediaId: item.id },
+    where: { igMediaId: item.id, userId },
     create: {
+      userId,
       igMediaId: item.id,
       permalink: item.permalink,
       caption: item.caption,
@@ -92,10 +99,11 @@ async function syncReel(accessToken: string, item: InstagramMedia) {
   });
 }
 
-async function syncPost(accessToken: string, item: InstagramMedia) {
+async function syncPost(userId: string, accessToken: string, item: InstagramMedia) {
   const savedPost = await db.post.upsert({
-    where: { igMediaId: item.id },
+    where: { igMediaId: item.id, userId },
     create: {
+      userId,
       igMediaId: item.id,
       permalink: item.permalink,
       caption: item.caption,
@@ -145,10 +153,10 @@ export interface SyncResult {
   postsSynced: number;
 }
 
-export async function runInstagramSync(): Promise<SyncResult> {
-  const account = await db.account.findFirst();
+export async function runInstagramSync(userId: string): Promise<SyncResult> {
+  const account = await db.account.findUnique({ where: { userId } });
   if (!account) {
-    throw new Error("No Instagram account connected. Connect one from Settings first.");
+    throw new Error("No Instagram account connected. Connect one from Profile first.");
   }
 
   let accessToken = account.accessToken;
@@ -172,6 +180,7 @@ export async function runInstagramSync(): Promise<SyncResult> {
     }),
     db.followerSnapshot.create({
       data: {
+        userId,
         followerCount: profile.followersCount,
         followsCount: profile.followsCount,
         mediaCount: profile.mediaCount,
@@ -186,10 +195,10 @@ export async function runInstagramSync(): Promise<SyncResult> {
   const postItems = media.filter((item) => item.mediaProductType === "FEED");
 
   for (const item of reelItems) {
-    await syncReel(accessToken, item);
+    await syncReel(userId, accessToken, item);
   }
   for (const item of postItems) {
-    await syncPost(accessToken, item);
+    await syncPost(userId, accessToken, item);
   }
 
   return {

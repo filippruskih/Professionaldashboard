@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 
-// Single-row settings, same pattern as Account - created lazily on first
-// read rather than via a seed script.
-export async function getAgentSettings() {
-  const existing = await db.agentSettings.findFirst();
-  if (existing) return existing;
-  return db.agentSettings.create({ data: {} });
+// One row per user, created lazily on first read rather than via a seed
+// script.
+export async function getAgentSettings(userId: string) {
+  return db.agentSettings.upsert({
+    where: { userId },
+    create: { userId },
+    update: {},
+  });
 }
 
 export function parseExcludedTopics(excludedTopics: string | null): string[] {

@@ -51,15 +51,15 @@ function findAnomalies(reels: Awaited<ReturnType<typeof getReelsWithLatestInsigh
 
 export async function runAnalyticsAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Pulling latest reel, post, and follower stats…");
-  const stats = await getOverviewStats();
-  const mix = await getContentMixComparison();
+  const stats = await getOverviewStats(ctx.userId);
+  const mix = await getContentMixComparison(ctx.userId);
 
   if (stats.reelCount === 0 && mix.posts.count === 0) {
     await ctx.log("No reels or posts synced yet - connect Instagram and run a sync first.", "warn");
     throw new AgentSkip("Skipped: no data to analyze yet");
   }
 
-  const reels = await getReelsWithLatestInsights();
+  const reels = await getReelsWithLatestInsights(ctx.userId);
   const anomalies = findAnomalies(reels);
 
   await ctx.log(

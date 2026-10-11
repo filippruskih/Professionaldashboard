@@ -16,16 +16,16 @@ const TOP_ITEMS_COUNT = 8;
 // meant to be copy-pasted into a separate chat (e.g. Claude.ai) for
 // analytics review, since that chat has no way to log into the
 // password-gated dashboard itself.
-export async function generateAnalyticsExport(): Promise<string> {
+export async function generateAnalyticsExport(userId: string): Promise<string> {
   const [account, overview, consistency, bestDays, mix, dna, reels, posts] = await Promise.all([
-    db.account.findFirst(),
-    getOverviewStats(),
-    getPostingConsistency(),
-    getBestDayToPost(),
-    getContentMixComparison(),
-    getLatestContentDna(),
-    getReelsWithLatestInsights(),
-    getPostsWithLatestInsights(),
+    db.account.findUnique({ where: { userId } }),
+    getOverviewStats(userId),
+    getPostingConsistency(userId),
+    getBestDayToPost(userId),
+    getContentMixComparison(userId),
+    getLatestContentDna(userId),
+    getReelsWithLatestInsights(userId),
+    getPostsWithLatestInsights(userId),
   ]);
 
   const lines: string[] = [];

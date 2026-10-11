@@ -20,21 +20,25 @@ function dateKey(d: Date): string {
 
 // year is the full year, month is 1-12 (calendar convention, not JS's
 // 0-indexed Date months) - converted at the one point it matters.
-export async function getCalendarMonth(year: number, month: number): Promise<Map<string, CalendarDay>> {
+export async function getCalendarMonth(
+  userId: string,
+  year: number,
+  month: number
+): Promise<Map<string, CalendarDay>> {
   const start = new Date(Date.UTC(year, month - 1, 1));
   const end = new Date(Date.UTC(year, month, 1)); // exclusive - first of the next month
 
   const [entries, reels, posts] = await Promise.all([
     db.calendarEntry.findMany({
-      where: { date: { gte: start, lt: end } },
+      where: { userId, date: { gte: start, lt: end } },
       orderBy: { date: "asc" },
     }),
     db.reel.findMany({
-      where: { postedAt: { gte: start, lt: end } },
+      where: { userId, postedAt: { gte: start, lt: end } },
       select: { id: true, caption: true, thumbnailUrl: true, permalink: true, postedAt: true },
     }),
     db.post.findMany({
-      where: { postedAt: { gte: start, lt: end } },
+      where: { userId, postedAt: { gte: start, lt: end } },
       select: { id: true, caption: true, thumbnailUrl: true, permalink: true, postedAt: true },
     }),
   ]);

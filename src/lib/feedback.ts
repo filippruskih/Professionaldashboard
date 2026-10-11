@@ -55,8 +55,8 @@ function parseTopics(topicTags: string | null): string[] {
 // Every reel is scored against six baselines: your all-time average, your
 // top 10%, your previous 10 reels, reels sharing a topic tag, reels
 // sharing a format, and reels of similar length.
-export async function getFeedbackLoop(reelId: string): Promise<FeedbackLoopResult | null> {
-  const allReels = await getReelsWithLatestInsights(); // sorted postedAt desc
+export async function getFeedbackLoop(userId: string, reelId: string): Promise<FeedbackLoopResult | null> {
+  const allReels = await getReelsWithLatestInsights(userId); // sorted postedAt desc
   const index = allReels.findIndex((r) => r.id === reelId);
   if (index === -1) return null;
 

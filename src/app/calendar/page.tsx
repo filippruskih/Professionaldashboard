@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { ContentTabs } from "@/components/content-tabs";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { getCalendarMonth } from "@/lib/calendar";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +25,13 @@ export default async function CalendarPage({
 }: {
   searchParams: Promise<{ year?: string; month?: string }>;
 }) {
+  const userId = await requireUserId();
   const params = await searchParams;
   const now = new Date();
   const year = Number(params.year) || now.getUTCFullYear();
   const month = Number(params.month) || now.getUTCMonth() + 1;
 
-  const daysMap = await getCalendarMonth(year, month);
+  const daysMap = await getCalendarMonth(userId, year, month);
   const days = Object.fromEntries(daysMap);
 
   const prev = clampMonth(year, month - 1);

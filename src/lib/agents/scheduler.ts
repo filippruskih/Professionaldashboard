@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { db } from "@/lib/db";
 import { ensureAgentDefinitions, triggerAgentRun } from "./runner";
+import { AGENT_REGISTRY } from "./registry";
 import type { AgentDefinition } from "@/generated/prisma/client";
 
 let started = false;
@@ -41,9 +42,31 @@ function isDue(now: Date, def: AgentDefinition): boolean {
   return true;
 }
 
+// Agent definitions are otherwise only created lazily (first visit to the
+// Agents page, or a manual "Run now"), so a user who connected Instagram
+// but never opened that page would never get anything scheduled. Only
+// users with a connected account count - there's nothing for any agent
+// to do before that.
+async function ensureDefinitionsForConnectedUsers() {
+  const expected = Object.keys(AGENT_REGISTRY).length;
+  const users = await db.user.findMany({
+    where: { account: { isNot: null } },
+    select: { id: true, _count: { select: { agentDefinitions: true } } },
+  });
+  for (const user of users) {
+    if (user._count.agentDefinitions < expected) await ensureAgentDefinitions(user.id);
+  }
+}
+
 async function checkDueAgents() {
   const now = new Date();
+  await ensureDefinitionsForConnectedUsers();
+
+  // Deliberately unscoped by user - this is the one system-level process
+  // that iterates every user's schedule. Each run is then triggered with
+  // its own definition's userId, so the task itself stays user-scoped.
   const definitions = await db.agentDefinition.findMany({
+    where: { user: { account: { isNot: null } } },
     include: { runs: { orderBy: { startedAt: "desc" }, take: 1 } },
   });
 
@@ -54,8 +77,8 @@ async function checkDueAgents() {
     const lastRun = def.runs[0];
     if (start && lastRun && lastRun.startedAt >= start) continue; // already fired this period
 
-    triggerAgentRun(def.key).catch((error) => {
-      console.error(`[agents] scheduled run for ${def.key} failed to start`, error);
+    triggerAgentRun(def.userId, def.key).catch((error) => {
+      console.error(`[agents] scheduled run for ${def.key} (user ${def.userId}) failed to start`, error);
     });
   }
 }
@@ -68,8 +91,6 @@ async function checkDueAgents() {
 export async function startScheduler() {
   if (started) return;
   started = true;
-
-  await ensureAgentDefinitions();
 
   cron.schedule(POLL_SCHEDULE, () => {
     checkDueAgents().catch((error) => {

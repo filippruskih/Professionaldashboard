@@ -17,6 +17,7 @@ import { getFeedbackLoop } from "@/lib/feedback";
 import { getAllSeries } from "@/lib/series";
 import { formatLabel } from "@/lib/content/classify";
 import { formatDate, formatPercent, formatSecondsFromMs } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +26,9 @@ export default async function ReelDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userId = await requireUserId();
   const { id } = await params;
-  const reel = await getReelDetail(id);
+  const reel = await getReelDetail(userId, id);
   if (!reel) notFound();
 
   const insight = reel.latestInsight;
@@ -35,8 +37,8 @@ export default async function ReelDetailPage({
     .map((s) => ({ date: s.capturedAt.toISOString(), value: s.views! }))
     .reverse();
   const topics: string[] = reel.topicTags ? JSON.parse(reel.topicTags) : [];
-  const feedback = await getFeedbackLoop(id);
-  const allSeries = await getAllSeries();
+  const feedback = await getFeedbackLoop(userId, id);
+  const allSeries = await getAllSeries(userId);
 
   return (
     <div className="flex flex-1 flex-col gap-4">

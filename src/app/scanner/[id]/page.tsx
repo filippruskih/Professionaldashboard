@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BackLink } from "@/components/back-link";
 import { DraftDetail } from "@/components/scanner/draft-detail";
 import { db } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +11,9 @@ export default async function ScannerDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userId = await requireUserId();
   const { id } = await params;
-  const draft = await db.draftReel.findUnique({ where: { id } });
+  const draft = await db.draftReel.findFirst({ where: { id, userId } });
   if (!draft) notFound();
 
   return (

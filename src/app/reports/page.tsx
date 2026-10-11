@@ -8,6 +8,7 @@ import { MetricLineChart } from "@/components/metric-line-chart";
 import { InsightsTabs } from "@/components/insights/insights-tabs";
 import { getRecentDailyReports, type DailyReportView } from "@/lib/daily-reports";
 import { formatCompactNumber, formatDate, formatPercent } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +93,8 @@ function ReportCard({ report, isLatest }: { report: DailyReportView; isLatest: b
 }
 
 export default async function ReportsPage() {
-  const reports = await getRecentDailyReports();
+  const userId = await requireUserId();
+  const reports = await getRecentDailyReports(userId);
 
   return (
     <div className="flex flex-1 flex-col gap-4">

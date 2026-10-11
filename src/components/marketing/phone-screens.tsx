@@ -1,7 +1,9 @@
 import {
   Activity,
+  BarChart3,
   Bot,
   CalendarClock,
+  FileText,
   Check,
   Lightbulb,
   MessageCircle,
@@ -80,7 +82,7 @@ export function AnalyticsScreen() {
     { label: "Avg watch", value: "9.2s", color: "var(--chart-1)" },
   ];
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div className="flex h-full flex-col gap-3 px-3 pt-9 pb-3">
       <div>
         <p className="text-[0.65rem] text-muted-foreground">3 October</p>
         <p className="text-sm leading-snug font-medium">
@@ -118,7 +120,7 @@ export function ScannerScreen() {
     { area: "Caption", note: "Add a direct question to invite replies, not just views.", color: "var(--chart-3)" },
   ];
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div className="flex h-full flex-col gap-3 px-3 pt-9 pb-3">
       <div className="flex items-center gap-1.5">
         <IconBadge icon={ScanSearch} color="orange" size="sm" className="size-6 [&_svg]:size-3.5" />
         <span className="text-xs font-semibold">Draft feedback</span>
@@ -151,7 +153,7 @@ export function ScannerScreen() {
 
 export function TrendsScreen() {
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div className="flex h-full flex-col gap-3 px-3 pt-9 pb-3">
       <div className="flex items-center gap-1.5">
         <IconBadge icon={Lightbulb} color="aqua" size="sm" className="size-6 [&_svg]:size-3.5" />
         <span className="text-xs font-semibold">Where to point your next reel</span>
@@ -193,7 +195,7 @@ export function RetentionScreen() {
     { label: "What nobody tells you about...", pct: "58%" },
   ];
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div className="flex h-full flex-col gap-3 px-3 pt-9 pb-3">
       <div className="flex items-center gap-1.5">
         <IconBadge icon={Activity} color="aqua" size="sm" className="size-6 [&_svg]:size-3.5" />
         <span className="text-xs font-semibold">Retention</span>
@@ -228,17 +230,21 @@ export function RetentionScreen() {
   );
 }
 
+// Mirrors the real registry (src/lib/agents/registry.ts), in the order
+// they run each morning.
 const AGENTS = [
-  { icon: RefreshCw, color: "blue" as const, name: "Sync", desc: "Pulls your latest reels, posts, and follower count." },
-  { icon: TrendingUp, color: "orange" as const, name: "Trend scanner", desc: "Researches current trends in your niche." },
-  { icon: Lightbulb, color: "aqua" as const, name: "Idea creation", desc: "Generates ideas from trends and your top performers." },
-  { icon: CalendarClock, color: "yellow" as const, name: "Planning", desc: "Turns the best idea into a hook and script." },
-  { icon: MessageCircle, color: "magenta" as const, name: "DM manager", desc: "Drafts replies for your review - never auto-sends." },
+  { icon: RefreshCw, color: "blue" as const, name: "Sync", desc: "Pulls your latest reels, posts, and followers." },
+  { icon: BarChart3, color: "blue" as const, name: "Analytics", desc: "Flags what's working and updates your Content DNA." },
+  { icon: TrendingUp, color: "orange" as const, name: "Trend scanner", desc: "Researches what's trending in your niche, live." },
+  { icon: Lightbulb, color: "aqua" as const, name: "Idea creation", desc: "Turns trends and top performers into ideas." },
+  { icon: CalendarClock, color: "yellow" as const, name: "Planning", desc: "Writes today's hook, script, post, and story." },
+  { icon: FileText, color: "yellow" as const, name: "Daily report", desc: "One morning briefing, in-app and by email." },
+  { icon: MessageCircle, color: "magenta" as const, name: "DM manager", desc: "Drafts DM replies - never sends on its own." },
 ];
 
 export function AgentsScreen() {
   return (
-    <div className="flex h-full flex-col gap-2 p-3">
+    <div className="flex h-full flex-col gap-2 px-3 pt-9 pb-3">
       <div className="flex items-center gap-1.5">
         <IconBadge icon={Bot} color="orange" size="sm" className="size-6 [&_svg]:size-3.5" />
         <span className="text-xs font-semibold">Agents</span>

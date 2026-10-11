@@ -8,6 +8,7 @@ import { BackLink } from "@/components/back-link";
 import { ListTree } from "lucide-react";
 import { getSeriesDetail } from "@/lib/series";
 import { formatDate } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +17,9 @@ export default async function SeriesDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userId = await requireUserId();
   const { id } = await params;
-  const series = await getSeriesDetail(id);
+  const series = await getSeriesDetail(userId, id);
   if (!series) notFound();
 
   const viewsHistory = series.reels

@@ -1,31 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
+import { SESSION_COOKIE, verifySessionCookie } from "@/lib/auth";
 
-// Gates the whole app behind a single shared password once hosted publicly.
-// Only active when SITE_PASSWORD is set — local dev stays open by default.
-//
-// Uses a real login page + session cookie rather than HTTP Basic Auth.
-// Basic Auth relied on the browser's native credential prompt, which is
-// unreliable inside installed/standalone PWAs (particularly iOS home
-// screen launches) — it would sometimes just show the bare 401 body with
-// no prompt and no way to retry. A cookie set by an actual page works
-// identically in a normal tab or a standalone PWA.
+// Gates the dashboard behind real per-user accounts (email + password,
+// see /signup and /login). Session is a signed, stateless cookie (see
+// lib/auth.ts createSessionCookieValue) - verified here with pure crypto,
+// no DB round trip, since the Proxy runtime shouldn't depend on Postgres
+// being reachable just to decide whether to redirect to /login.
 //
 // A few routes are excluded from the gate entirely:
 // - "/": the public marketing/landing page (src/app/page.tsx) — has to be
 //   readable by anyone with the URL, logged in or not. The actual
 //   dashboard lives at /home, behind the gate as normal.
+// - "/login" and "/signup" (and their API routes): have to be reachable
+//   *before* you're authenticated, or nobody could ever log in.
 // - The Instagram webhook: Meta calls it server-to-server with no browser
 //   session, and it already verifies requests itself (HMAC signature on
 //   POST, hub.verify_token on the GET handshake) — see
 //   src/app/api/instagram/webhook/route.ts.
 // - /api/health: external uptime monitors and Railway's own healthcheck
 //   can't log in either.
-// - /login and /api/auth/login: have to be reachable *before* you're
-//   authenticated, or nobody could ever log in.
 // - /privacy and /terms: must be publicly readable — Meta's App Review
-//   requires the Privacy Policy URL to load with no login, and future
-//   subscribers need to read them before signing up.
+//   requires the Privacy Policy URL to load with no login, and anyone
+//   signing up needs to read them first.
 // - manifest.webmanifest, the icons, apple-touch-icon.png, and sw.js: the
 //   browser/OS fetches these unauthenticated as part of installing the PWA
 //   (checking installability, downloading the home-screen icon, checking
@@ -33,14 +29,13 @@ import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
 //   silently redirected to /login instead of returning the actual asset,
 //   which can break "Add to Home Screen" and stale-icon-cache issues.
 
-export function proxy(request: NextRequest) {
-  const sitePassword = process.env.SITE_PASSWORD;
-  if (!sitePassword) return NextResponse.next();
+const PUBLIC_PATHS = new Set(["/", "/login", "/signup"]);
 
-  if (request.nextUrl.pathname === "/") return NextResponse.next();
+export function proxy(request: NextRequest) {
+  if (PUBLIC_PATHS.has(request.nextUrl.pathname)) return NextResponse.next();
 
   const cookie = request.cookies.get(SESSION_COOKIE)?.value;
-  if (isValidSession(cookie)) return NextResponse.next();
+  if (verifySessionCookie(cookie)) return NextResponse.next();
 
   // Anything under /api/* gets a plain 401 (fetch callers handle status
   // codes, not redirects). Everything else — a full page load or a
@@ -67,6 +62,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/instagram/webhook|api/health|api/auth/login|login|privacy|terms|manifest\\.webmanifest|icons/|apple-touch-icon\\.png|sw\\.js|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/instagram/webhook|api/health|api/auth/login|api/auth/signup|login|signup|privacy|terms|manifest\\.webmanifest|icons/|apple-touch-icon\\.png|sw\\.js|_next/static|_next/image|favicon.ico).*)",
   ],
 };

@@ -5,8 +5,8 @@ export interface IdeaItem {
   why: string;
 }
 
-export async function getLatestIdeaBatch() {
-  const batch = await db.ideaBatch.findFirst({ orderBy: { generatedAt: "desc" } });
+export async function getLatestIdeaBatch(userId: string) {
+  const batch = await db.ideaBatch.findFirst({ where: { userId }, orderBy: { generatedAt: "desc" } });
   if (!batch) return null;
 
   return {

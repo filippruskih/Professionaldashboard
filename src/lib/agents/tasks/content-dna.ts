@@ -49,7 +49,7 @@ function groupByViews<T>(
 // no-ops (just a log line) below the reel-count threshold rather than
 // throwing, since this is a sub-step, not the whole run.
 export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: string) {
-  const reels = await getReelsWithLatestInsights();
+  const reels = await getReelsWithLatestInsights(ctx.userId);
 
   if (reels.length < MIN_REELS_FOR_DNA) {
     await ctx.log(
@@ -105,6 +105,7 @@ export async function updateContentDna(ctx: AgentContext, sourceAgentRunId: stri
 
   await db.contentDnaProfile.create({
     data: {
+      userId: ctx.userId,
       narrative: narrative || "No narrative generated.",
       topFormatsJson: JSON.stringify(topFormats),
       topTopicsJson: JSON.stringify(topTopics),

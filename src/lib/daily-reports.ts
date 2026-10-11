@@ -66,12 +66,12 @@ function toView(report: {
   };
 }
 
-export async function getRecentDailyReports(limit = 14): Promise<DailyReportView[]> {
-  const reports = await db.dailyReport.findMany({ orderBy: { date: "desc" }, take: limit });
+export async function getRecentDailyReports(userId: string, limit = 14): Promise<DailyReportView[]> {
+  const reports = await db.dailyReport.findMany({ where: { userId }, orderBy: { date: "desc" }, take: limit });
   return reports.map(toView);
 }
 
-export async function getLatestDailyReport(): Promise<DailyReportView | null> {
-  const report = await db.dailyReport.findFirst({ orderBy: { date: "desc" } });
+export async function getLatestDailyReport(userId: string): Promise<DailyReportView | null> {
+  const report = await db.dailyReport.findFirst({ where: { userId }, orderBy: { date: "desc" } });
   return report ? toView(report) : null;
 }

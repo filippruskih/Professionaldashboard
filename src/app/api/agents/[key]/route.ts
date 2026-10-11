@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ensureAgentDefinitions } from "@/lib/agents/runner";
+import { getCurrentUserId, notFound, unauthorized } from "@/lib/session";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ key: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { key } = await params;
-  await ensureAgentDefinitions();
+  await ensureAgentDefinitions(userId);
 
   const definition = await db.agentDefinition.findUnique({
-    where: { key },
+    where: { userId_key: { userId, key } },
     include: {
       runs: {
         orderBy: { startedAt: "desc" },
@@ -27,6 +31,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
 const VALID_FREQUENCIES = new Set(["off", "daily", "weekly", "monthly"]);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ key: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { key } = await params;
   const body = await request.json();
 
@@ -77,6 +84,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
-  const definition = await db.agentDefinition.update({ where: { key }, data });
+  const existing = await db.agentDefinition.findUnique({ where: { userId_key: { userId, key } } });
+  if (!existing) return notFound();
+  const definition = await db.agentDefinition.update({ where: { id: existing.id }, data });
   return NextResponse.json(definition);
 }

@@ -11,10 +11,10 @@ interface CombinedItem {
   engagementRate: number | null;
 }
 
-async function getCombinedItems(): Promise<CombinedItem[]> {
+async function getCombinedItems(userId: string): Promise<CombinedItem[]> {
   const [reels, posts] = await Promise.all([
-    getReelsWithLatestInsights(),
-    getPostsWithLatestInsights(),
+    getReelsWithLatestInsights(userId),
+    getPostsWithLatestInsights(userId),
   ]);
 
   const fromReels: CombinedItem[] = reels.map((r) => ({
@@ -39,8 +39,8 @@ export interface PostingConsistency {
   daysSinceLastPost: number | null;
 }
 
-export async function getPostingConsistency(): Promise<PostingConsistency> {
-  const items = await getCombinedItems();
+export async function getPostingConsistency(userId: string): Promise<PostingConsistency> {
+  const items = await getCombinedItems(userId);
   const now = Date.now();
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
   const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
@@ -62,8 +62,8 @@ export interface BestDayToPost {
   count: number;
 }
 
-export async function getBestDayToPost(): Promise<BestDayToPost[] | null> {
-  const items = (await getCombinedItems()).filter((i) => i.engagementRate != null);
+export async function getBestDayToPost(userId: string): Promise<BestDayToPost[] | null> {
+  const items = (await getCombinedItems(userId)).filter((i) => i.engagementRate != null);
   if (items.length < MIN_ITEMS_FOR_BEST_DAY) return null;
 
   const buckets = new Map<number, number[]>();
@@ -87,8 +87,8 @@ export interface EngagementTrendPoint {
   value: number;
 }
 
-export async function getEngagementTrend(): Promise<EngagementTrendPoint[]> {
-  const items = (await getCombinedItems()).filter((i) => i.engagementRate != null);
+export async function getEngagementTrend(userId: string): Promise<EngagementTrendPoint[]> {
+  const items = (await getCombinedItems(userId)).filter((i) => i.engagementRate != null);
   return items.map((i) => ({ date: i.postedAt.toISOString(), value: i.engagementRate! }));
 }
 
@@ -119,10 +119,10 @@ function summarize(items: CombinedItem[]): ContentMixStats {
   };
 }
 
-export async function getContentMixComparison(): Promise<ContentMixComparison> {
+export async function getContentMixComparison(userId: string): Promise<ContentMixComparison> {
   const [reels, posts] = await Promise.all([
-    getReelsWithLatestInsights(),
-    getPostsWithLatestInsights(),
+    getReelsWithLatestInsights(userId),
+    getPostsWithLatestInsights(userId),
   ]);
 
   const reelItems: CombinedItem[] = reels.map((r) => ({

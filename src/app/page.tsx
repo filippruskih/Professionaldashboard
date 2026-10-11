@@ -92,9 +92,14 @@ export default function LandingPage() {
           </div>
           <span className="text-lg font-semibold">CMPND</span>
         </div>
-        <Button asChild>
-          <Link href="/login">Log in</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" asChild>
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/signup">Create account</Link>
+          </Button>
+        </div>
       </header>
 
       <section className="mx-auto max-w-6xl px-6 pt-10 pb-6 lg:pt-16">
@@ -114,14 +119,17 @@ export default function LandingPage() {
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" asChild>
-              <Link href="/login">
-                Log in <ArrowRight />
+              <Link href="/signup">
+                Create your account <ArrowRight />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#features">See what it does</a>
             </Button>
           </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Sign up with email, then connect your Instagram professional account.
+          </p>
         </div>
 
         <div className="mt-14 flex flex-wrap items-start justify-center gap-6">
@@ -208,14 +216,20 @@ export default function LandingPage() {
             <IconBadge icon={ArrowRight} color="blue" />
             <h2 className="text-xl font-semibold">Ready to see your own numbers?</h2>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Log in to reach your dashboard - followers, performance, and today&apos;s suggestion,
-              at a glance.
+              Create an account, connect Instagram, and your first sync fills in followers,
+              performance, and today&apos;s suggestion.
             </p>
             <Button size="lg" asChild>
-              <Link href="/login">
-                Log in <ArrowRight />
+              <Link href="/signup">
+                Create your account <ArrowRight />
               </Link>
             </Button>
+            <p className="text-xs text-muted-foreground">
+              Already have one?{" "}
+              <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+                Log in
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </section>

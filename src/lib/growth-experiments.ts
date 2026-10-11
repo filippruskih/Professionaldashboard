@@ -16,8 +16,11 @@ interface CombinedItem {
   format: string | null; // null for posts - only reels are classified by format
 }
 
-async function getCombinedItems(): Promise<CombinedItem[]> {
-  const [reels, posts] = await Promise.all([getReelsWithLatestInsights(), getPostsWithLatestInsights()]);
+async function getCombinedItems(userId: string): Promise<CombinedItem[]> {
+  const [reels, posts] = await Promise.all([
+    getReelsWithLatestInsights(userId),
+    getPostsWithLatestInsights(userId),
+  ]);
 
   const fromReels: CombinedItem[] = reels.map((r) => ({
     postedAt: r.postedAt,
@@ -129,8 +132,8 @@ function weekOfMonthBucket(dayOfMonth: number): { key: string; label: string } {
   return { key: String(week), label };
 }
 
-export async function getTimeOfDayExperiment(): Promise<ExperimentResult> {
-  const items = await getCombinedItems();
+export async function getTimeOfDayExperiment(userId: string): Promise<ExperimentResult> {
+  const items = await getCombinedItems(userId);
   return {
     title: "Time of day",
     description: "Every reel and post, grouped by the hour it was posted (your local time as recorded by Instagram).",
@@ -139,8 +142,8 @@ export async function getTimeOfDayExperiment(): Promise<ExperimentResult> {
   };
 }
 
-export async function getDayOfWeekExperiment(): Promise<ExperimentResult> {
-  const items = await getCombinedItems();
+export async function getDayOfWeekExperiment(userId: string): Promise<ExperimentResult> {
+  const items = await getCombinedItems(userId);
   return {
     title: "Day of week",
     description: "Every reel and post, grouped by which day of the week it was posted.",
@@ -153,8 +156,8 @@ export async function getDayOfWeekExperiment(): Promise<ExperimentResult> {
   };
 }
 
-export async function getWeekOfMonthExperiment(): Promise<ExperimentResult> {
-  const items = await getCombinedItems();
+export async function getWeekOfMonthExperiment(userId: string): Promise<ExperimentResult> {
+  const items = await getCombinedItems(userId);
   return {
     title: "Week of month",
     description: "Every reel and post, grouped by which week of the month it fell in.",
@@ -163,6 +166,10 @@ export async function getWeekOfMonthExperiment(): Promise<ExperimentResult> {
   };
 }
 
-export async function getAllExperiments(): Promise<ExperimentResult[]> {
-  return Promise.all([getTimeOfDayExperiment(), getDayOfWeekExperiment(), getWeekOfMonthExperiment()]);
+export async function getAllExperiments(userId: string): Promise<ExperimentResult[]> {
+  return Promise.all([
+    getTimeOfDayExperiment(userId),
+    getDayOfWeekExperiment(userId),
+    getWeekOfMonthExperiment(userId),
+  ]);
 }

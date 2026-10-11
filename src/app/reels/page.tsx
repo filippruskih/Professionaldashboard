@@ -5,6 +5,7 @@ import { ReelsGrid } from "@/components/reels/reels-grid";
 import { PaginationControls } from "@/components/reels/pagination-controls";
 import { ContentTabs } from "@/components/content-tabs";
 import { getReelsPage } from "@/lib/stats";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,10 @@ export default async function ReelsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const userId = await requireUserId();
   const { page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? "1") || 1);
-  const { reels, totalCount, pageSize } = await getReelsPage(page);
+  const { reels, totalCount, pageSize } = await getReelsPage(userId, page);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (

@@ -6,8 +6,11 @@ export interface DnaGroupStat {
   count: number;
 }
 
-export async function getLatestContentDna() {
-  const profile = await db.contentDnaProfile.findFirst({ orderBy: { generatedAt: "desc" } });
+export async function getLatestContentDna(userId: string) {
+  const profile = await db.contentDnaProfile.findFirst({
+    where: { userId },
+    orderBy: { generatedAt: "desc" },
+  });
   if (!profile) return null;
 
   return {

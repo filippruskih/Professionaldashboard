@@ -5,6 +5,7 @@ import { PostsGrid } from "@/components/posts/posts-grid";
 import { PaginationControls } from "@/components/reels/pagination-controls";
 import { ContentTabs } from "@/components/content-tabs";
 import { getPostsPage } from "@/lib/posts";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,10 @@ export default async function PostsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const userId = await requireUserId();
   const { page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? "1") || 1);
-  const { posts, totalCount, pageSize } = await getPostsPage(page);
+  const { posts, totalCount, pageSize } = await getPostsPage(userId, page);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (

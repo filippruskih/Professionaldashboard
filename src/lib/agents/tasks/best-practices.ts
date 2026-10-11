@@ -50,10 +50,10 @@ const BEST_PRACTICE_SCHEMA = {
 // on.
 export async function updateBestPractices(ctx: AgentContext, sourceAgentRunId: string) {
   const [reels, posts, dna, existing] = await Promise.all([
-    getReelsWithLatestInsights(),
-    getPostsWithLatestInsights(),
-    getLatestContentDna(),
-    db.bestPractice.findMany({ orderBy: { createdAt: "desc" }, take: 30 }),
+    getReelsWithLatestInsights(ctx.userId),
+    getPostsWithLatestInsights(ctx.userId),
+    getLatestContentDna(ctx.userId),
+    db.bestPractice.findMany({ where: { userId: ctx.userId }, orderBy: { createdAt: "desc" }, take: 30 }),
   ]);
 
   if (reels.length + posts.length < MIN_ITEMS_FOR_BEST_PRACTICES) {
@@ -137,6 +137,7 @@ ${NO_MARKDOWN_INSTRUCTION}`,
 
   await db.bestPractice.createMany({
     data: recommendations.map((r) => ({
+      userId: ctx.userId,
       title: r.title,
       description: r.description,
       sourceAgentRunId,

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, Film, Image as ImageIcon, LogOut, User, Users, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, Film, Image as ImageIcon, LogOut, Sparkles, User, Users, XCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { instagramConfig } from "@/lib/instagram/config";
-import { isAuthEnabled } from "@/lib/auth";
+import { requireUserId } from "@/lib/session";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,16 @@ import { formatCompactNumber } from "@/lib/format";
 export default async function ProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ connected?: string; error?: string }>;
+  searchParams: Promise<{ connected?: string; error?: string; welcome?: string }>;
 }) {
-  const { connected, error } = await searchParams;
-  const [account, reelCount, postCount, latestSnapshot] = await Promise.all([
-    db.account.findFirst(),
-    db.reel.count(),
-    db.post.count(),
-    db.followerSnapshot.findFirst({ orderBy: { capturedAt: "desc" } }),
+  const userId = await requireUserId();
+  const { connected, error, welcome } = await searchParams;
+  const [user, account, reelCount, postCount, latestSnapshot] = await Promise.all([
+    db.user.findUnique({ where: { id: userId }, select: { email: true } }),
+    db.account.findUnique({ where: { userId } }),
+    db.reel.count({ where: { userId } }),
+    db.post.count({ where: { userId } }),
+    db.followerSnapshot.findFirst({ where: { userId }, orderBy: { capturedAt: "desc" } }),
   ]);
   const configured = instagramConfig.isConfigured();
 
@@ -49,6 +51,17 @@ export default async function ProfilePage({
         </div>
       )}
 
+      {welcome && !account && (
+        <Alert>
+          <Sparkles />
+          <AlertTitle>Welcome to CMPND</AlertTitle>
+          <AlertDescription>
+            Your account is ready. Connect your Instagram below to start syncing - everything else
+            in the app fills in from there.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {connected && (
         <Alert>
           <CheckCircle2 />
@@ -63,7 +76,9 @@ export default async function ProfilePage({
           <AlertDescription>
             {error === "invalid_oauth_state"
               ? "The connection request expired or was tampered with. Try connecting again."
-              : "Something went wrong exchanging the token with Instagram. Check the server logs."}
+              : error === "already_connected"
+                ? "That Instagram account is already connected to a different CMPND account."
+                : "Something went wrong exchanging the token with Instagram. Check the server logs."}
           </AlertDescription>
         </Alert>
       )}
@@ -121,21 +136,20 @@ export default async function ProfilePage({
         </CardContent>
       </Card>
 
-      {isAuthEnabled() && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Session</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form action="/api/auth/logout" method="POST">
-              <Button type="submit" variant="outline" size="sm">
-                <LogOut />
-                Log out
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Account</CardTitle>
+          {user && <CardDescription>Signed in as {user.email}</CardDescription>}
+        </CardHeader>
+        <CardContent>
+          <form action="/api/auth/logout" method="POST">
+            <Button type="submit" variant="outline" size="sm">
+              <LogOut />
+              Log out
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

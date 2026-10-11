@@ -3,8 +3,9 @@ import { anthropic, requireAnthropicKey, AGENT_MODEL, NO_EM_DASH_INSTRUCTION } f
 import type { AgentContext } from "@/lib/agents/registry";
 import { AgentSkip } from "@/lib/agents/errors";
 
-async function getNicheContext(): Promise<string | null> {
+async function getNicheContext(userId: string): Promise<string | null> {
   const reels = await db.reel.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     take: 15,
     select: { caption: true, topicTags: true, format: true },
@@ -20,7 +21,7 @@ async function getNicheContext(): Promise<string | null> {
 
 export async function runTrendAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Looking at your recent content to infer your niche…");
-  const nicheContext = await getNicheContext();
+  const nicheContext = await getNicheContext(ctx.userId);
 
   if (!nicheContext) {
     await ctx.log("No reels synced yet - can't infer a niche to research trends for.", "warn");

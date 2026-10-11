@@ -5,8 +5,9 @@ export type PostWithLatestInsight = Post & { latestInsight: PostInsightSnapshot 
 
 // Mirrors getReelsWithLatestInsights in lib/stats.ts — same historical-
 // snapshot-per-item convention, just for Feed posts instead of Reels.
-export async function getPostsWithLatestInsights(): Promise<PostWithLatestInsight[]> {
+export async function getPostsWithLatestInsights(userId: string): Promise<PostWithLatestInsight[]> {
   const posts = await db.post.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     include: { insights: { orderBy: { capturedAt: "desc" }, take: 1 } },
   });
@@ -19,13 +20,14 @@ export async function getPostsWithLatestInsights(): Promise<PostWithLatestInsigh
 
 const POSTS_PAGE_SIZE = 9; // 3x3 grid per page
 
-export async function getPostsPage(page: number): Promise<{
+export async function getPostsPage(userId: string, page: number): Promise<{
   posts: PostWithLatestInsight[];
   totalCount: number;
   pageSize: number;
 }> {
-  const totalCount = await db.post.count();
+  const totalCount = await db.post.count({ where: { userId } });
   const posts = await db.post.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     skip: (page - 1) * POSTS_PAGE_SIZE,
     take: POSTS_PAGE_SIZE,
@@ -49,9 +51,9 @@ export function mediaTypeLabel(mediaType: string): string {
   return MEDIA_TYPE_LABELS[mediaType] ?? mediaType;
 }
 
-export async function getPostDetail(id: string) {
-  const post = await db.post.findUnique({
-    where: { id },
+export async function getPostDetail(userId: string, id: string) {
+  const post = await db.post.findFirst({
+    where: { id, userId },
     include: { insights: { orderBy: { capturedAt: "desc" } } },
   });
   if (!post) return null;

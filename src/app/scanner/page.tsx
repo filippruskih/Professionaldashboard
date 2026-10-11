@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { DraftList } from "@/components/scanner/draft-list";
 import { db } from "@/lib/db";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,9 @@ export const dynamic = "force-dynamic";
 // upload entry point now — see ScannerUploadDialog) or the back-link from
 // a scan's result page. This page itself is just the history of past scans.
 export default async function ScannerPage() {
+  const userId = await requireUserId();
   const drafts = await db.draftReel.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     select: { id: true, filename: true, status: true, createdAt: true },
   });

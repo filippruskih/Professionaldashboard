@@ -39,8 +39,11 @@ function describeBaseline(baseline: {
 // User-triggered (the reel detail page's "Run analysis" / "Regenerate"
 // button), not scheduled - re-runnable since more insight snapshots
 // accrue over time and the answer can change.
-export async function analyzeReelPerformance(reelId: string): Promise<string> {
-  const [feedback, dna] = await Promise.all([getFeedbackLoop(reelId), getLatestContentDna()]);
+export async function analyzeReelPerformance(userId: string, reelId: string): Promise<string> {
+  const [feedback, dna] = await Promise.all([getFeedbackLoop(userId, reelId), getLatestContentDna(userId)]);
+  // getFeedbackLoop only searches this user's own reels, so a null here
+  // also covers "this reel belongs to someone else" - the update below is
+  // never reached for a reel the caller doesn't own.
   if (!feedback) throw new Error("Reel not found");
 
   const { reel, baselines } = feedback;
@@ -85,8 +88,8 @@ ${NO_MARKDOWN_INSTRUCTION}`,
   const analysis = textBlock && textBlock.type === "text" ? textBlock.text.trim() : "";
   if (!analysis) throw new Error("Analysis response had no text content");
 
-  await db.reel.update({
-    where: { id: reelId },
+  await db.reel.updateMany({
+    where: { id: reelId, userId },
     data: { performanceAnalysis: analysis, performanceAnalysisAt: new Date() },
   });
 

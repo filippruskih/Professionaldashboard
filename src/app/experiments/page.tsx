@@ -4,11 +4,13 @@ import { EmptyState } from "@/components/empty-state";
 import { InsightsTabs } from "@/components/insights/insights-tabs";
 import { ExperimentCard } from "@/components/experiments/experiment-card";
 import { getAllExperiments } from "@/lib/growth-experiments";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExperimentsPage() {
-  const experiments = await getAllExperiments();
+  const userId = await requireUserId();
+  const experiments = await getAllExperiments(userId);
   const hasAnyData = experiments.some((e) => e.sampleSize > 0);
 
   return (

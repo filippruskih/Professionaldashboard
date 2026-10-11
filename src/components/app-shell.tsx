@@ -9,7 +9,7 @@ import { BottomNav } from "@/components/bottom-nav";
 // TopHeader/BottomNav chrome (nav items like "Insights"/"Agents" make no
 // sense to an anonymous visitor, and the bottom nav's floating pill would
 // just overlap a login form).
-const CHROME_LESS_PATHS = new Set(["/", "/login"]);
+const CHROME_LESS_PATHS = new Set(["/", "/login", "/signup"]);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

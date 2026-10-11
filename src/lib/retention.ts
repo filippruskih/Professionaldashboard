@@ -93,8 +93,8 @@ function toLeaderboardItem(r: ReelWithRetention): RetentionLeaderboardItem {
 // the account owner) - everything here is built from that one real number
 // plus each reel's own length, computed across the whole account instead
 // of shown one reel at a time.
-export async function getRetentionOverview(): Promise<RetentionOverview | null> {
-  const reels = await getReelsWithLatestInsights();
+export async function getRetentionOverview(userId: string): Promise<RetentionOverview | null> {
+  const reels = await getReelsWithLatestInsights(userId);
 
   const withRetention: ReelWithRetention[] = reels
     .filter((r) => r.durationMs && r.durationMs > 0 && r.latestInsight?.avgWatchTimeMs != null)

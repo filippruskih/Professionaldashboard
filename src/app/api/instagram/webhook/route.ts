@@ -55,23 +55,32 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = JSON.parse(rawBody) as WebhookPayload;
-  const account = await db.account.findFirst();
 
   for (const entry of payload.entry ?? []) {
+    // entry.id is the Instagram account this event was delivered for -
+    // that's what decides which CMPND user owns it. No session exists on
+    // a webhook call, so ownership has to come from the payload itself.
+    const account = await db.account.findUnique({ where: { igUserId: entry.id } });
+    if (!account) continue; // not an account connected to any user here
+
     for (const event of entry.messaging ?? []) {
       if (!event.message) continue; // ignore read receipts, reactions, etc.
 
-      const fromUser = event.sender.id !== account?.igUserId;
+      const fromUser = event.sender.id !== account.igUserId;
       const otherPartyId = fromUser ? event.sender.id : event.recipient.id;
 
       const thread = await db.dmThread.upsert({
-        where: { igThreadId: otherPartyId },
-        create: { igThreadId: otherPartyId, lastMessageAt: new Date(event.timestamp) },
+        where: { userId_igThreadId: { userId: account.userId, igThreadId: otherPartyId } },
+        create: {
+          userId: account.userId,
+          igThreadId: otherPartyId,
+          lastMessageAt: new Date(event.timestamp),
+        },
         update: { lastMessageAt: new Date(event.timestamp) },
       });
 
       await db.dmMessage.upsert({
-        where: { igMessageId: event.message.mid },
+        where: { threadId_igMessageId: { threadId: thread.id, igMessageId: event.message.mid } },
         create: {
           threadId: thread.id,
           igMessageId: event.message.mid,

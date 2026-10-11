@@ -69,8 +69,9 @@ const PLAN_SCHEMA = {
   additionalProperties: false,
 };
 
-async function getRecentCaptions(): Promise<string[]> {
+async function getRecentCaptions(userId: string): Promise<string[]> {
   const reels = await db.reel.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     take: RECENT_CAPTIONS_FOR_NICHE,
     select: { caption: true },
@@ -81,7 +82,7 @@ async function getRecentCaptions(): Promise<string[]> {
 export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Reading the latest ideas…");
   const ideaRun = await db.agentRun.findFirst({
-    where: { agent: { key: "idea" }, status: "succeeded" },
+    where: { agent: { key: "idea", userId: ctx.userId }, status: "succeeded" },
     orderBy: { startedAt: "desc" },
   });
 
@@ -90,7 +91,10 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
     throw new AgentSkip("Skipped: no ideas to plan from yet");
   }
 
-  const [settings, recentCaptions] = await Promise.all([getAgentSettings(), getRecentCaptions()]);
+  const [settings, recentCaptions] = await Promise.all([
+    getAgentSettings(ctx.userId),
+    getRecentCaptions(ctx.userId),
+  ]);
   const excludedTopics = parseExcludedTopics(settings.excludedTopics);
 
   requireAnthropicKey();
@@ -130,6 +134,7 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
 
   await db.suggestion.createMany({
     data: plans.map((plan) => ({
+      userId: ctx.userId,
       type: "reel",
       hook: plan.hook,
       script: plan.script,
@@ -141,6 +146,7 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   if (parsed.post?.concept && parsed.post?.caption) {
     await db.suggestion.create({
       data: {
+        userId: ctx.userId,
         type: "post",
         concept: parsed.post.concept,
         caption: parsed.post.caption,
@@ -153,6 +159,7 @@ export async function runPlanningAgent(ctx: AgentContext): Promise<string> {
   if (parsed.story?.concept && parsed.story?.caption) {
     await db.suggestion.create({
       data: {
+        userId: ctx.userId,
         type: "story",
         concept: parsed.story.concept,
         caption: parsed.story.caption,

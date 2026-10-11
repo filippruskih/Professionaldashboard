@@ -10,7 +10,7 @@ export async function runSyncAgent(ctx: AgentContext): Promise<string> {
   await ctx.log("Pulling latest reels, posts, and follower count from Instagram…");
 
   try {
-    const result = await runInstagramSync();
+    const result = await runInstagramSync(ctx.userId);
     await ctx.log(
       `Synced @${result.username}: ${result.reelsSynced} reels, ${result.postsSynced} posts, ${result.followerCount} followers.`
     );

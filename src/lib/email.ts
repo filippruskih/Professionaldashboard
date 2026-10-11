@@ -2,8 +2,11 @@ import { Resend } from "resend";
 import { formatCompactNumber, formatDate, formatPercent, formatSignedCompactNumber } from "@/lib/format";
 import type { DailyReportStats } from "@/lib/daily-reports";
 
+// Each user's report goes to their own account email - there's no longer
+// a single global recipient (that would send every user's report to one
+// inbox).
 export function isEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.REPORT_EMAIL_TO);
+  return Boolean(process.env.RESEND_API_KEY);
 }
 
 function escapeHtml(text: string): string {
@@ -58,18 +61,20 @@ function buildStatBoxes(stats: DailyReportStats): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`;
 }
 
-export async function sendDailyReportEmail(report: {
-  date: Date;
-  summary: string;
-  stats: DailyReportStats;
-}): Promise<void> {
+export async function sendDailyReportEmail(
+  to: string,
+  report: {
+    date: Date;
+    summary: string;
+    stats: DailyReportStats;
+  }
+): Promise<void> {
   if (!isEmailConfigured()) {
-    throw new Error("Email not configured - set RESEND_API_KEY and REPORT_EMAIL_TO.");
+    throw new Error("Email not configured - set RESEND_API_KEY.");
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.REPORT_FROM_EMAIL || "CMPND <onboarding@resend.dev>";
-  const to = process.env.REPORT_EMAIL_TO!;
   const dateLabel = formatDate(report.date);
 
   const html = `

@@ -16,21 +16,23 @@ import { getLatestIdeaBatch } from "@/lib/idea-batch";
 import { getLatestDailyReport } from "@/lib/daily-reports";
 import { getEngagementTrend } from "@/lib/insights";
 import { formatCompactNumber, formatPercent } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
+  const userId = await requireUserId();
   const [stats, suggestions, account, ideaBatch, latestReport, playsOverTime, engagementTrend, topReels, avgPlaysOverTime] =
     await Promise.all([
-      getOverviewStats(),
-      getActiveSuggestions(),
-      db.account.findFirst(),
-      getLatestIdeaBatch(),
-      getLatestDailyReport(),
-      getPlaysOverTime(),
-      getEngagementTrend(),
-      getTopReels(10),
-      getAvgPlaysOverTime(),
+      getOverviewStats(userId),
+      getActiveSuggestions(userId),
+      db.account.findUnique({ where: { userId } }),
+      getLatestIdeaBatch(userId),
+      getLatestDailyReport(userId),
+      getPlaysOverTime(userId),
+      getEngagementTrend(userId),
+      getTopReels(userId, 10),
+      getAvgPlaysOverTime(userId),
     ]);
   const hasData = stats.followerCount != null || stats.reelCount > 0;
 

@@ -7,8 +7,9 @@ export type ReelWithLatestInsight = Reel & { latestInsight: ReelInsightSnapshot 
 // stored historically (one per sync), so "current" stats means the latest
 // row per reel, computed in JS rather than a SQL window function — fine at
 // personal-account scale.
-export async function getReelsWithLatestInsights(): Promise<ReelWithLatestInsight[]> {
+export async function getReelsWithLatestInsights(userId: string): Promise<ReelWithLatestInsight[]> {
   const reels = await db.reel.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     include: { insights: { orderBy: { capturedAt: "desc" }, take: 1 } },
   });
@@ -21,13 +22,14 @@ export async function getReelsWithLatestInsights(): Promise<ReelWithLatestInsigh
 
 const REELS_PAGE_SIZE = 10;
 
-export async function getReelsPage(page: number): Promise<{
+export async function getReelsPage(userId: string, page: number): Promise<{
   reels: ReelWithLatestInsight[];
   totalCount: number;
   pageSize: number;
 }> {
-  const totalCount = await db.reel.count();
+  const totalCount = await db.reel.count({ where: { userId } });
   const reels = await db.reel.findMany({
+    where: { userId },
     orderBy: { postedAt: "desc" },
     skip: (page - 1) * REELS_PAGE_SIZE,
     take: REELS_PAGE_SIZE,
@@ -41,9 +43,9 @@ export async function getReelsPage(page: number): Promise<{
   };
 }
 
-export async function getReelDetail(id: string) {
-  const reel = await db.reel.findUnique({
-    where: { id },
+export async function getReelDetail(userId: string, id: string) {
+  const reel = await db.reel.findFirst({
+    where: { id, userId },
     include: { insights: { orderBy: { capturedAt: "desc" } } },
   });
   if (!reel) return null;
@@ -67,14 +69,14 @@ export interface OverviewStats {
   newUnfollows: number | null;
 }
 
-export async function getOverviewStats(): Promise<OverviewStats> {
+export async function getOverviewStats(userId: string): Promise<OverviewStats> {
   const [recentSnapshotsDesc, reels] = await Promise.all([
     // Capped rather than fetching the whole history - only used for the
     // latest/previous delta and a recent-trend chart, so a bounded window
     // is correct, not just faster, and won't keep growing as sync accrues
     // more daily rows over time.
-    db.followerSnapshot.findMany({ orderBy: { capturedAt: "desc" }, take: 180 }),
-    getReelsWithLatestInsights(),
+    db.followerSnapshot.findMany({ where: { userId }, orderBy: { capturedAt: "desc" }, take: 180 }),
+    getReelsWithLatestInsights(userId),
   ]);
   const followerSnapshots = [...recentSnapshotsDesc].reverse();
 
@@ -125,8 +127,8 @@ export async function getOverviewStats(): Promise<OverviewStats> {
 // Chronological plays-per-reel across the whole account - what "Total
 // plays" on Overview actually drills into when clicked, since the stat
 // itself is a sum rather than something with its own time series.
-export async function getPlaysOverTime(): Promise<{ date: string; value: number }[]> {
-  const reels = await getReelsWithLatestInsights();
+export async function getPlaysOverTime(userId: string): Promise<{ date: string; value: number }[]> {
+  const reels = await getReelsWithLatestInsights(userId);
   return reels
     .filter((r) => r.latestInsight?.views != null)
     .sort((a, b) => a.postedAt.getTime() - b.postedAt.getTime())
@@ -138,8 +140,8 @@ const AVG_PLAYS_WINDOW = 5;
 // A trailing rolling average rather than raw per-reel views (which would
 // just duplicate the "Total plays" trend) - shows whether the average is
 // trending up or down as new reels land, smoothed over the last few posts.
-export async function getAvgPlaysOverTime(): Promise<{ date: string; value: number }[]> {
-  const reels = await getReelsWithLatestInsights();
+export async function getAvgPlaysOverTime(userId: string): Promise<{ date: string; value: number }[]> {
+  const reels = await getReelsWithLatestInsights(userId);
   const withViews = reels
     .filter((r) => r.latestInsight?.views != null)
     .sort((a, b) => a.postedAt.getTime() - b.postedAt.getTime());
@@ -151,8 +153,8 @@ export async function getAvgPlaysOverTime(): Promise<{ date: string; value: numb
   });
 }
 
-export async function getTopReels(limit = 10): Promise<ReelWithLatestInsight[]> {
-  const reels = await getReelsWithLatestInsights();
+export async function getTopReels(userId: string, limit = 10): Promise<ReelWithLatestInsight[]> {
+  const reels = await getReelsWithLatestInsights(userId);
   return [...reels]
     .filter((r) => r.latestInsight?.views != null)
     .sort((a, b) => (b.latestInsight!.views ?? 0) - (a.latestInsight!.views ?? 0))

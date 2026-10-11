@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUserId, notFound, unauthorized } from "@/lib/session";
 
 const VALID_STATUSES = new Set(["planned", "drafted", "posted", "skipped"]);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { id } = await params;
   const body = await request.json();
 
@@ -32,12 +36,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
-  const entry = await db.calendarEntry.update({ where: { id }, data });
+  const { count } = await db.calendarEntry.updateMany({ where: { id, userId }, data });
+  if (count === 0) return notFound();
+  const entry = await db.calendarEntry.findUnique({ where: { id } });
   return NextResponse.json(entry);
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { id } = await params;
-  await db.calendarEntry.delete({ where: { id } });
+  const { count } = await db.calendarEntry.deleteMany({ where: { id, userId } });
+  if (count === 0) return notFound();
   return NextResponse.json({ ok: true });
 }

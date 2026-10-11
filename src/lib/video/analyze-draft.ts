@@ -47,13 +47,13 @@ interface DraftAnalysis {
   caption: string;
 }
 
-async function getGroundingContext(): Promise<string> {
+async function getGroundingContext(userId: string): Promise<string> {
   const [trendRun, dnaProfile] = await Promise.all([
     db.agentRun.findFirst({
-      where: { agent: { key: "trend" }, status: "succeeded" },
+      where: { agent: { key: "trend", userId }, status: "succeeded" },
       orderBy: { startedAt: "desc" },
     }),
-    db.contentDnaProfile.findFirst({ orderBy: { generatedAt: "desc" } }),
+    db.contentDnaProfile.findFirst({ where: { userId }, orderBy: { generatedAt: "desc" } }),
   ]);
 
   const parts: string[] = [];
@@ -71,6 +71,8 @@ async function getGroundingContext(): Promise<string> {
 // Runs in the background after upload (see src/app/api/drafts/route.ts).
 // This process is a long-lived Next.js server, not serverless, so
 // execution continues after the upload request has already responded.
+// Scoped by the draft row's own userId - callers have already verified
+// the requesting user owns this draft before kicking this off.
 export async function processDraftReel(draftId: string): Promise<void> {
   const draft = await db.draftReel.findUnique({ where: { id: draftId } });
   if (!draft) return;
@@ -84,7 +86,7 @@ export async function processDraftReel(draftId: string): Promise<void> {
 
     const [frames, grounding] = await Promise.all([
       extractFrames(draft.storagePath),
-      getGroundingContext(),
+      getGroundingContext(draft.userId),
     ]);
 
     if (frames.length === 0) {

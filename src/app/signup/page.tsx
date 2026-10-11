@@ -5,15 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AppLogoMark } from "@/components/app-logo-mark";
 
-export const metadata = { title: "Log in - CMPND" };
+export const metadata = { title: "Create an account - CMPND" };
 
-export default async function LoginPage({
+const ERROR_MESSAGES: Record<string, string> = {
+  email: "Enter a valid email address.",
+  short: "Password needs to be at least 8 characters.",
+  mismatch: "Passwords don't match.",
+  taken: "An account with that email already exists - log in instead.",
+  locked: "Too many attempts. Try again in a few minutes.",
+};
+
+export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string; email?: string }>;
+  searchParams: Promise<{ error?: string; email?: string }>;
 }) {
-  const { next, error, email } = await searchParams;
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/home";
+  const { error, email } = await searchParams;
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-background p-4">
@@ -28,13 +35,12 @@ export default async function LoginPage({
             <AppLogoMark className="size-6" />
           </Link>
           <div>
-            <CardTitle>Log in to CMPND</CardTitle>
-            <CardDescription>Welcome back.</CardDescription>
+            <CardTitle>Create your account</CardTitle>
+            <CardDescription>Then connect your Instagram to get started.</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <form method="POST" action="/api/auth/login" className="flex flex-col gap-4">
-            <input type="hidden" name="next" value={safeNext} />
+          <form method="POST" action="/api/auth/signup" className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -42,7 +48,7 @@ export default async function LoginPage({
                 name="email"
                 type="email"
                 defaultValue={email ?? ""}
-                autoFocus={!email}
+                autoFocus
                 required
                 autoComplete="email"
               />
@@ -53,27 +59,35 @@ export default async function LoginPage({
                 id="password"
                 name="password"
                 type="password"
-                autoFocus={Boolean(email)}
                 required
-                autoComplete="current-password"
+                minLength={8}
+                autoComplete="new-password"
               />
             </div>
-            {error === "locked" && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="confirm">Confirm password</Label>
+              <Input
+                id="confirm"
+                name="confirm"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+              />
+            </div>
+            {error && (
               <p className="text-sm text-destructive">
-                Too many failed attempts. Try again in a few minutes.
+                {ERROR_MESSAGES[error] ?? "Something went wrong. Try again."}
               </p>
             )}
-            {error && error !== "locked" && (
-              <p className="text-sm text-destructive">Incorrect email or password.</p>
-            )}
             <Button type="submit" className="w-full">
-              Log in
+              Create account
             </Button>
           </form>
           <p className="text-center text-sm text-muted-foreground">
-            New here?{" "}
-            <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
-              Create an account
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+              Log in
             </Link>
           </p>
         </CardContent>

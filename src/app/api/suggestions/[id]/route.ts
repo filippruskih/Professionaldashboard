@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUserId, notFound, unauthorized } from "@/lib/session";
 
 const VALID_STATUSES = new Set(["used", "dismissed"]);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { id } = await params;
   const body = await request.json();
 
@@ -11,6 +15,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  await db.suggestion.update({ where: { id }, data: { status: body.status } });
+  const { count } = await db.suggestion.updateMany({
+    where: { id, userId },
+    data: { status: body.status },
+  });
+  if (count === 0) return notFound();
   return NextResponse.json({ ok: true });
 }

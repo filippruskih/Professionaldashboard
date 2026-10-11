@@ -8,11 +8,13 @@ import { ContentTabs } from "@/components/content-tabs";
 import { NewSeriesDialog } from "@/components/series/new-series-dialog";
 import { getAllSeries } from "@/lib/series";
 import { formatDate } from "@/lib/format";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function SeriesPage() {
-  const series = await getAllSeries();
+  const userId = await requireUserId();
+  const series = await getAllSeries(userId);
 
   return (
     <div className="flex flex-1 flex-col gap-4">

@@ -5,14 +5,17 @@ import { getAgentSettings } from "@/lib/agent-settings";
 import { AgentCard } from "@/components/agents/agent-card";
 import { ExcludedTopicsCard } from "@/components/agents/excluded-topics-card";
 import { PageHeader } from "@/components/page-header";
+import { requireUserId } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function AgentsPage() {
-  await ensureAgentDefinitions();
+  const userId = await requireUserId();
+  await ensureAgentDefinitions(userId);
 
   const [definitions, settings] = await Promise.all([
     db.agentDefinition.findMany({
+      where: { userId },
       orderBy: { createdAt: "asc" },
       include: {
         runs: {
@@ -22,7 +25,7 @@ export default async function AgentsPage() {
         },
       },
     }),
-    getAgentSettings(),
+    getAgentSettings(userId),
   ]);
 
   return (

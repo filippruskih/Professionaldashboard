@@ -1,6 +1,7 @@
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUserId, unauthorized } from "@/lib/session";
 import { draftFileExists, readDraftFile } from "@/lib/video/draft-storage";
 
 const MIME_BY_EXTENSION: Record<string, string> = {
@@ -11,8 +12,11 @@ const MIME_BY_EXTENSION: Record<string, string> = {
 };
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getCurrentUserId();
+  if (!userId) return unauthorized();
+
   const { id } = await params;
-  const draft = await db.draftReel.findUnique({ where: { id } });
+  const draft = await db.draftReel.findFirst({ where: { id, userId } });
   if (!draft || !(await draftFileExists(draft.storagePath))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
