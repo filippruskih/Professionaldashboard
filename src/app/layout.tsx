@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TopHeader } from "@/components/top-header";
-import { BottomNav } from "@/components/bottom-nav";
+import { AppShell } from "@/components/app-shell";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -50,13 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <RegisterServiceWorker />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <div className="flex min-h-svh flex-col bg-background">
-              <TopHeader />
-              <main className="flex flex-1 flex-col gap-4 p-4 pb-32 md:p-6 md:pb-32">
-                {children}
-              </main>
-              <BottomNav />
-            </div>
+            <AppShell>{children}</AppShell>
           </TooltipProvider>
         </ThemeProvider>
       </body>

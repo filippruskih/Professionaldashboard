@@ -12,6 +12,9 @@ import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
 // identically in a normal tab or a standalone PWA.
 //
 // A few routes are excluded from the gate entirely:
+// - "/": the public marketing/landing page (src/app/page.tsx) — has to be
+//   readable by anyone with the URL, logged in or not. The actual
+//   dashboard lives at /home, behind the gate as normal.
 // - The Instagram webhook: Meta calls it server-to-server with no browser
 //   session, and it already verifies requests itself (HMAC signature on
 //   POST, hub.verify_token on the GET handshake) — see
@@ -33,6 +36,8 @@ import { SESSION_COOKIE, isValidSession } from "@/lib/auth";
 export function proxy(request: NextRequest) {
   const sitePassword = process.env.SITE_PASSWORD;
   if (!sitePassword) return NextResponse.next();
+
+  if (request.nextUrl.pathname === "/") return NextResponse.next();
 
   const cookie = request.cookies.get(SESSION_COOKIE)?.value;
   if (isValidSession(cookie)) return NextResponse.next();

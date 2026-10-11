@@ -34,7 +34,7 @@ export interface NavItem {
 // BottomNav itself (see bottom-nav.tsx) rather than living in this array —
 // it opens an upload dialog directly instead of navigating to a page.
 export const bottomNavItems: NavItem[] = [
-  { key: "home", title: "Home", url: "/", icon: Home, color: "blue", matchPrefixes: ["/"] },
+  { key: "home", title: "Home", url: "/home", icon: Home, color: "blue", matchPrefixes: ["/home"] },
   {
     key: "content",
     title: "Content",
@@ -127,9 +127,7 @@ export const experimentsNavItem: NavItem = {
 };
 
 function isItemActive(item: NavItem, pathname: string): boolean {
-  return item.matchPrefixes.some((prefix) =>
-    prefix === "/" ? pathname === "/" : pathname.startsWith(prefix)
-  );
+  return item.matchPrefixes.some((prefix) => pathname.startsWith(prefix));
 }
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {

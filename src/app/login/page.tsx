@@ -12,10 +12,10 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const { next, error } = await searchParams;
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/home";
 
   return (
-    <div className="flex min-h-[80vh] flex-1 items-center justify-center">
+    <div className="flex min-h-svh items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="flex flex-col items-center gap-3 text-center">
           <div

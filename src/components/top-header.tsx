@@ -13,7 +13,7 @@ export function TopHeader() {
 
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2.5 border-b bg-background/85 px-4 backdrop-blur-sm supports-backdrop-filter:bg-background/70 md:px-6">
-      <Link href="/" className="flex items-center gap-2.5">
+      <Link href="/home" className="flex items-center gap-2.5">
         <div
           className="flex aspect-square size-7 shrink-0 items-center justify-center rounded-lg text-white"
           style={{ background: "#B9C6AE" }}

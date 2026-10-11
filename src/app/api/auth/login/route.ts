@@ -13,8 +13,8 @@ import {
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const password = String(formData.get("password") ?? "");
-  const rawNext = String(formData.get("next") ?? "/");
-  const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const rawNext = String(formData.get("next") ?? "/home");
+  const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/home";
 
   const ip = clientIp(request);
   const loginPath = `/login?next=${encodeURIComponent(safeNext)}`;

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "CMPND",
     short_name: "CMPND",
     description: "Personal Instagram Reels analytics & content agents",
-    start_url: "/",
+    start_url: "/home",
     display: "standalone",
     background_color: "#0f0f10",
     theme_color: "#B9C6AE",
